@@ -1,0 +1,118 @@
+/*******************************************************************************
+ * Rofi Theme           : minimal-black.rasi
+ * Wiki                 : https://davatorium.github.io/rofi/current/rofi-theme.5/
+ *******************************************************************************/
+* {
+
+    bg:                 rgba(0,0,0,1);
+    fg:                 rgba(200, 200, 200, 0.9);
+    fg-dim:             rgba(200, 200, 200, 0.3);
+
+    background-color:   transparent;
+    text-color:         @fg;
+
+    margin:     0;
+    padding:    0;
+    spacing:    0;
+
+    font:   "CaskaydiaCove Nerd Font 12";
+}
+
+window {
+    // location:   center;
+    width:      25em;
+
+    border:             0.15em solid;
+    border-color:       @fg;
+    background-color:   @bg;
+
+    children:   [ mainbox ];
+}
+
+// main container
+mainbox {
+    margin:     1.3em;
+    spacing:    1em;
+    children:   [ message, inputbar, listview ];
+}
+
+    message {
+        children:   [ textbox ];
+    }
+    error-message {
+        children:   [ textbox ];
+    }
+        textbox {
+            margin:            1.3em;
+            background-color:   @bg;
+        }
+
+    inputbar {
+        margin:     0px 0em 0em 0.2em;
+        children:   [ prompt, textbox-prompt-colon, entry, button-exit ];
+    }
+        prompt, textbox-prompt-colon {
+            vertical-align: 1;
+            font:               "CaskaydiaCove Nerd Font 10";
+        }
+        textbox-prompt-colon {
+            margin:     0px 0.3em 0em 0em;
+            str:        ":";
+            expand:     false;
+        }
+        entry {
+            vertical-align: 0.5;
+            placeholder: "type...";
+            placeholder-color: @fg-dim;
+        }
+        button-exit {
+            action: "kb-cancel";
+            content: "Exit";
+            horizontal-align: 1;
+            cursor: pointer;
+        }
+
+    listview {
+        lines:      10;
+        columns:    1;
+
+        fixed-height:   false;
+
+        children:   [ element ];
+    }
+        element {
+            padding:    0.5em;
+            spacing:    1em;
+
+            // children:   [ element-icon, element-text ];
+        }
+            element-icon {
+                size:   1em;
+                vertical-align: 0.5;
+            }
+            element-text {
+                text-color: inherit;
+                vertical-align: 0.5;
+            }
+            element normal.normal {
+                text-color: @fg;
+            }
+            element normal.active {
+                text-color: @fg;
+            }
+            element normal.urgent {
+                text-color: red;
+            }
+            element selected {
+                text-color: @bg;
+            }
+            element selected.normal {
+                background-color:   @fg;
+            }
+            element selected.active {
+                background-color:   @fg;
+            }
+            element selected.urgent {
+                background-color:   red;
+            }
+

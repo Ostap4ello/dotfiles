@@ -1,0 +1,11 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =9
+let g:netrw_dirhist_9='/home/ostap4ello/Workspace/ira-vim-nvim-tut'
+let g:netrw_dirhist_8='/home/ostap4ello'
+let g:netrw_dirhist_7='/home/ostap4ello/.var'
+let g:netrw_dirhist_6='/home/ostap4ello/.var/test-sandbox'
+let g:netrw_dirhist_5='/home/ostap4ello/.var/app/com.opera.Opera'
+let g:netrw_dirhist_4='/home/ostap4ello/.var/app/com.opera.Opera/cache'
+let g:netrw_dirhist_3='/home/ostap4ello/.var/app/com.opera.Opera'
+let g:netrw_dirhist_2='/home/ostap4ello/.config/i3'
+let g:netrw_dirhist_1='/home/ostap4ello/.config/vim'

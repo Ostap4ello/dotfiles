@@ -1,0 +1,39 @@
+* {
+    font-family: "CaskaydiaCove Nerd Font", monospace;
+    font-size: 12pt;
+    color: #ffffff;
+
+    border: 0px dotted;
+    border-color: #00ff00;
+
+    margin: 0 5px 0 5px;
+}
+
+window#waybar {
+    background-color: rgba(0, 0, 0, 0.9);
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+#workspaces button {
+    background-color: transparent;
+    padding: 0;
+    margin: -8px;
+    border-radius: 0px;
+}
+
+#workspaces button:hover {
+    background-color: transparent;
+    border-radius: 0;
+}
+
+#workspaces button:hover {
+    box-shadow: inset 0px -1px white;
+    text-shadow: none;
+    background: none;
+    transition: 0ms;
+}
+
+
+#battery.warning { background: #b05a00; }
+#battery.critical { background: #b00000; }

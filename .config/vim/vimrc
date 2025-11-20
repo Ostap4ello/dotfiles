@@ -1,0 +1,6 @@
+set clipboard=unnamed,unnamedplus
+
+" Copy with Wayland
+" xnoremap <silent> y :w !wl-copy<CR><CR>
+" Paste from Wayland
+" noremap <silent> p :r !wl-paste<CR><CR>

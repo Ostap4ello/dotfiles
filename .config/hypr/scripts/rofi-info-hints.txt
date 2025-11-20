@@ -1,0 +1,49 @@
+CTRL_ALT + W               Execute power script
+SUPER + L                  Lock screen
+SUPER + C                  Kill active window
+SUPER + M                  Exit session
+
+SUPER + Q                  Launch terminal
+SUPER + E                  Launch file manager
+SUPER + R                  Launch menu
+
+SUPER + SHIFT + S          Screenshot with grim and swappy
+PrtSc                      Screenshot script
+
+SUPER + V                  Clipboard history
+
+Mute Button                Toggle volume mute
+Volume Down                Decrease volume
+Volume Up                  Increase volume
+Mic Mute Button            Toggle mic mute
+
+Brightness Down            Decrease brightness
+Brightness Up              Increase brightness
+
+SUPER + Arrows             Change focus
+
+SUPER + W                  Window list
+
+SUPER + SHIFT + Arrows     Resize window
+
+SUPER + CTRL + Arrows      Move window
+
+SUPER + J                  Toggle split
+
+SUPER + F                  Toggle floating
+SUPER + SHIFT + F          Toggle fullscreen
+F11                        Fullscreen window
+
+SUPER + [1-9]              Switch workspace [1-9]
+SUPER + 0                  Toggle special workspace
+
+SUPER + SHIFT + [1-9]      Move window to workspace [1-9]
+SUPER + SHIFT + 0          Move window to special workspace
+
+SUPER + U                  Toggle special workspace
+SUPER + SHIFT + U          Move window to special workspace
+
+SUPER + Mouse Scroll       Scroll through workspaces
+
+SUPER + LMB                Move window
+SUPER + RMB                Resize window

@@ -1,0 +1,211 @@
+{
+    // General
+    "layer": "top",
+    "position": "bottom", // top|bottom|left|right
+    "gtk-layer-shell": true,
+    "height": "12pt",
+    // "width": 1920,
+    "margin-bottom": 12,
+    "margin-top": 2,
+    "margin-left": 10,
+    "margin-right": 10,
+
+    "modules-left": [ "image#appmenu", "custom/clock",/* "custom/separator", "custom/hints",*/ "custom/separator", "hyprland/language" ],
+    "modules-center": [ "hyprland/workspaces" ],
+    "modules-right": [ "tray", "cpu", "memory", "custom/separator" , "pulseaudio", "custom/separator", "network", "custom/separator", "battery" ],
+
+    // Modules configuration
+
+    "mpd": {
+        "server": "127.0.0.1",
+        "port": 6600,
+        "tooltip": false,
+        "exec-if": "pgrep mpd",
+        "format": "{stateIcon} {consumeIcon}{randomIcon}{artist} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ",
+        //"format-disconnected": "Disconnected ",
+        //"format-stopped": "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped ",
+        "format-disconnected": "",
+        "format-stopped": "",
+        "unknown-tag": "N/A",
+        "interval": 2,
+        "max-length": 60,
+        "consume-icons": {
+            "on": " "
+        },
+        "random-icons": {
+            "on": "<span color=\"#f53c3c\"></span> ",
+            "off": " "
+        },
+        "repeat-icons": {
+            "on": " "
+        },
+        "single-icons": {
+            "on": "1 "
+        },
+        "state-icons": {
+            "paused": "",
+            "playing": ""
+        }
+    },
+
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "format-icons": {
+            "activated": "",
+            "deactivated": ""
+        }
+    },
+
+    "tray": {
+        "icon-size": 16,
+        "spacing": 10
+    },
+
+    "clock": {
+        "timezone": "",
+        "format": "{:%H:%M:%S | %a, %b %d %C%y}",
+        "format-alt": "{:%H:%M:%S %Z %a, %b %d %C%y}",
+        "tooltip": false,
+        "on-click-right": "gsimplecal",
+        "interval": 1
+    },
+
+    "cpu": {
+        "format": "{usage}%  ",
+        "on-click": "alacritty -e bash -ci htop --sort-key PERCENT_CPU",
+        "interval": 1
+    },
+
+    "memory": {
+        "format": "{}%  ",
+        "on-click": "alacritty -e bash -ci htop --sort-key PERCENT_MEM"
+    },
+
+    "temperature": {
+        "critical-threshold": 80,
+        "format-critical": "{temperatureC}°C {icon}",
+        "format": "{temperatureC}°C {icon}",
+        "format-icons": [" ", " ", " "]
+    },
+
+    "backlight": {
+        // "device": "acpi_video1",
+        "format": "{percent}% {icon}",
+        "format-icons": [" ", " "]
+    },
+
+    "battery": {
+        "format": " {icon} {capacity}% ",
+        "format-alt": " {icon} {capacity}% - {time} ",
+        "format-icons": [" ", " ", " ", " ", " "],
+        "format-time": " {H}h{M}m ",
+        "format-charging": "  {capacity}% ",
+        "format-full": "  {capacity}% ",
+        "interval": 4,
+        "states": {
+            "warning": 20,
+            "critical": 10
+        },
+        "tooltip": false
+    },
+
+    "network": {
+        //"interface": "enp0n25", // (Optional) To force the use of this interface
+        "format-wifi": "{essid}<span color='#999999'>({signalStrength}%)</span>  ",
+        "format-ethernet": "{ifname}  ",
+        "format-linked": "{ifname} (No IP)  !",
+        "format-disconnected": "  !",
+        "on-click-right": "kitty --start-as normal bash -ci nmtui",
+        //"on-click": "kitty --start-as normal bash -ci what",
+        "format-alt": "<span font_size='6pt'>{ifname} (strength: {signalStrength}%)\n{ipaddr}/{cidr}</span>"
+    },
+
+    "pulseaudio": {
+        "tooltip": false,
+        // "scroll-step": 1, // %, can be a float
+        "format": "{volume}% {icon} {format_source}",
+        "format-bluetooth": "{volume}% {icon}{format_source}",
+        "format-bluetooth-muted": "  {icon}{format_source}",
+        "format-muted": "   {format_source}",
+        "format-source": " ",
+        "format-source-muted": " ",
+        "format-icons": {
+            "headphone": " ",
+            "hands-free": " ",
+            "headset": " ",
+            "phone": " ",
+            "portable": " ",
+            "car": " ",
+            "default": [" ", " ", " "]
+        },
+        "on-click-middle": "pavucontrol",
+        "on-click-right": "pactl set-source-mute @DEFAULT_SOURCE@ toggle",
+        "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
+    },
+
+
+    "bluetooth": {
+        "format": "{icon}",
+        "format-alt": "bluetooth: {status}",
+        "interval": 30,
+        "format-icons": {
+            "enabled": "",
+            "disabled": ""
+        },
+        "tooltip-format": "{status}"
+    },
+
+    // CUSTOM MODULES
+
+    "hyprland/workspaces": {
+        "format": "{icon}{name}{icon}",
+        "all-outputs": true,
+        "format-icons": {
+            "urgent": "!",
+            "focused": "⏽",
+            "active": "⏽",
+            "default": " ",
+            "empty": " "
+        },
+        "show-special": true,
+        "special-visible-only": true
+    },
+
+    "hyprland/language": {
+        "format": "<span font_size='10pt'>{}</span>",
+        "format-en": "Splendid, sluuurp",
+        "format-uk": "Nejřmoviřní",
+        "format-cs": "База, база, їбать"
+    },
+
+    "hyprland/mode": {
+        "format": "<span style=\"italic\">{}</span>"
+    },
+
+    "custom/separator": {
+    "format":"|"
+    },
+
+    "custom/hints": {
+        "format": "?",
+        "on-click": "exec ~/.config/hypr/scripts/info.bash"
+    },
+
+    "custom/todo": {},
+
+    "custom/appmenu": {
+        "format": "󰣇 ",
+        "on-click": "rofi -show drun"
+    }, 
+
+    "image#appmenu": {
+        "path": "/home/ostap4ello/.local/share/logoAP-3.png",
+        "size": 25,
+        "on-click": "rofi -show drun"
+    },
+    "custom/clock": {
+        "exec": "date +'%H:%M:%S | %a, %b %d, %Y'",
+        "interval": 1,
+        "tooltip": false
+    }
+}

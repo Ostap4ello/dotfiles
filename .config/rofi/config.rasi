@@ -1,0 +1,7 @@
+configuration {
+    modi: "window,drun,run,emoji,calc";
+    dpi: 0;
+    show-icons: false;
+}
+
+@theme "/home/ostap4ello/.local/share/rofi/themes/minimal-black.rasi"
