@@ -1,44 +1,3 @@
-# Ignore everything
-*
-
-# But not these files:
-!readme.md
-!deploy.sh
-!.gitignore
-
-!.bash*
-
-!.config
-
-!.config/batsignal
-!.config/dunst
-!.config/hypr
-!.config/kitty
-!.config/lf
-!.config/neofetch
-!.config/nvim
-!.config/rofi
-!.config/tmux
-!.config/vim
-!.config/waybar
-
-!.config/dunst/**
-!.config/hypr/**
-!.config/kitty/**
-!.config/lf/**
-!.config/neofetch/**
-!.config/nvim/**
-!.config/rofi/**
-!.config/tmux/tmux.conf
-!.config/vim/**
-!.config/waybar/**
-
-!.local
-!.local/share
-!.local/share/rofi
-!.local/share/rofi/themes
-!.local/share/rofi/themes/**
-
 # Exceptions
 .bash_history*
 .config/hypr/hypr.session
@@ -46,6 +5,8 @@
 .config/hypr/monitors.conf
 .config/hypr/monitors-persistent.conf
 .config/nvim/lazy-lock.json
+.config/tmux/plugins
+.config/tmux/tpm
 **/*.bak
 **/.*.bak
 

@@ -1,0 +1,119 @@
+#!/bin/bash
+#
+# A script to handle local ollama docker container management
+#
+
+log() {
+    echo "- $*"
+}
+
+help_message() {
+    echo ""
+    echo "Usage: $0 <command> [<command> ...] [--name <container-name>] [--help|-h]"
+    echo ""
+    echo "Manage an Ollama Docker container."
+    echo ""
+    echo "Commands:"
+    echo "  r   - run container with nvidia gpu support"
+    echo "  rN  - run container without nvidia gpu support"
+    echo "  k   - kill and remove container"
+    echo "  a   - attach to the container"
+    echo "  b   - start container"
+    echo "  s   - stop container"
+    echo "  h   - show this message"
+    echo ""
+    echo "Options:"
+    echo "  --name <container-name>  Specify the container name (default: ollama-node-1)"
+    echo "  --context-length <length>  Set the context length (default: 32000)"
+    echo "  -h, --help              Show this help message"
+    echo ""
+}
+
+main() {
+
+    commands=()
+    context_length=32000
+    container_name="ollama-node-1"
+
+    if [ "$#" -eq 0 ]; then
+        echo "No arguments provided. Use --help or -h for usage information."
+        exit 1;
+    fi
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            r|rN|a|b|s|k)
+                commands+=("$1")
+                shift
+                ;;
+            -h|--help)
+                help_message
+                exit 0
+                ;;
+            --name)
+                if [ -n "$2" ]; then
+                    container_name="$2"
+                    shift 2
+                else
+                    echo "Error: --name requires a non-empty argument."
+                    exit 1
+                fi
+                ;;
+            --context-length)
+                if [ -n "$2" ]; then
+                    context_length="$2"
+                    shift 2
+                else
+                    echo "Error: --context-length requires a non-empty argument."
+                    exit 1
+                fi
+                ;;
+            *)
+                help_message
+                exit 1
+                ;;
+        esac
+    done
+
+    for cmd in "${commands[@]}"; do
+        case "$cmd" in
+            r)
+                docker run -d \
+                    --name "$container_name" \
+                    -e OLLAMA_CONTEXT_LENGTH="$context_length" \
+                    -v ollama:/root/.ollama \
+                    -p 11434:11434 \
+                    --gpus=all \
+                    ollama/ollama
+                ;;
+            rN)
+                docker run -d \
+                    --name "$container_name" \
+                    -v ollama:/root/.ollama \
+                    -e OLLAMA_CONTEXT_LENGTH="$context_length" \
+                    -p 11434:11434 \
+                    ollama/ollama
+                ;;
+            k)
+                docker rm -f "$container_name"
+                ;;
+            a)
+                docker exec -it "$container_name" /bin/bash
+                ;;
+            b)
+                docker start "$container_name"
+                ;;
+            s)
+                docker stop "$container_name"
+                ;;
+            *)
+                help_message
+                exit 1
+                ;;
+        esac
+    done
+
+    exit 0
+}
+
+# Main #
+main "$@"
