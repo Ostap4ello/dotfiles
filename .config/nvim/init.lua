@@ -55,3 +55,4 @@ else
     -- vim.cmd("colorscheme default")
     vim.cmd("colorscheme default")
 end
+vim.cmd("Copilot disable")

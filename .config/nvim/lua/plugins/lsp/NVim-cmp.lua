@@ -12,7 +12,7 @@ return {
 
             "hrsh7th/cmp-path",
             -- "hrsh7th/cmp-calc",
-            -- "octaltree/cmp-look",
+            "octaltree/cmp-look",
             config = function()
                 require("luasnip.loaders.from_vscode").lazy_load()
             end,
@@ -35,14 +35,14 @@ return {
                 completion = { completeopt = "menu,menuone,noinsert" },
 
                 mapping = cmp.mapping.preset.insert({
-                    ["<C-n>"] = cmp.mapping.select_next_item(),
-                    ["<C-p>"] = cmp.mapping.select_prev_item(),
+                    ["<C-p>"] = cmp.mapping.select_next_item(),
+                    ["<C-S-p>"] = cmp.mapping.select_prev_item(),
 
                     ["<C-b>"] = cmp.mapping.scroll_docs(-4),
                     ["<C-f>"] = cmp.mapping.scroll_docs(4),
 
                     -- Accept ([y]es) the completion.
-                    ["<CR>"] = cmp.mapping.confirm({ select = true }),
+                    ["<S-CR>"] = cmp.config.disable,
 
                     -- If you prefer more traditional completion keymaps,
                     -- you can uncomment the following lines
@@ -72,7 +72,7 @@ return {
                     { name = "path", priority = 2 },
                     { name = "buffer", priority = 1 }, -- cmp-buffer
                     -- { name = "calc", priority = 1 },
-                    -- { name = "look", priority = 1 },
+                    { name = "look", priority = 1 },
                 },
             })
         end,

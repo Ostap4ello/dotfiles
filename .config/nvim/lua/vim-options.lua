@@ -68,7 +68,7 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 })
 
 vim.api.nvim_create_autocmd("FileType", {
-    pattern = { "txt", "markdown", "rst", "gay" },
+    pattern = { "txt", "markdown", "rst", "tex", "gay" },
     command = "setlocal linebreak wrap",
 })
 
