@@ -15,16 +15,16 @@ while read -r line; do
 done < "$mon_config"
 
 # Update persistent settings
-if [[ ! -f "$pers_config" || -s "$pers_config" ]]; then
-    echo "# Persistent monitors settings" >> "$pers_config"
+if [[ ! -f "$pers_config" || ! -s "$pers_config" ]]; then
+    echo "# Persistent monitors settings" > "$pers_config"
     echo "# Created by $0" >> "$pers_config"
     echo "" >> "$pers_config"
 fi
 
 for monitor in "${monitors[@]}"; do
     # Remove last saved configuration for this monitor
-    line=$(echo "$monitor" cut -d',' -f 1)
-    sed --in-place -e "/^$line.*$/d" "$pers_config"
+    line=$(echo "$monitor" | cut -d',' -f 1)
+    sed --in-place -e "/^${line},.*$/d" "$pers_config"
     # Append current configuration
     echo "$monitor" >> "$pers_config"
 done
