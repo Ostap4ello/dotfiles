@@ -1,0 +1,94 @@
+### I3 CONFIGURATION FILE ###
+set $conf_folder $HOME/.config/i3
+
+## MONITORS
+# i3 does not support monitor configuration directly, use xrandr instead.
+# exec --no-startup-id ~/.config/i3/monitors.conf
+
+## MY PROGRAMS
+set $terminal alacritty
+set $fileManager lf
+# set $menu rofi -show drun
+# set $winmenu rofi -show window
+
+## AUTOSTART
+exec --no-startup-id clipmenud
+exec --no-startup-id ./session.bash restore
+exec_always --no-startup-id $HOME/.config/polybar/launch.sh
+exec --no-startup-id xsetroot -solid '#000000'
+# exec --no-startup-id feh --bg-scale /path/to/wallpaper # TODO: Replace hyprpaper
+exec --no-startup-id wl-paste --type text --watch cliphist store
+exec --no-startup-id wl-paste --type image --watch cliphist store
+# exec --no-startup-id hypridle -c ~/.config/hypr/hypridle.conf
+# exec --no-startup-id clight -c $HOME/.config/clight/clight.conf
+exec --no-startup-id powertop
+exec --no-startup-id otd-daemon
+exec --no-startup-id input-remapper-control --command autoload
+# exec --no-startup-id kdeconnectd
+exec --no-startup-id ./session.bash restore
+
+
+### ENVIRONMENT VARIABLES
+set $XCURSOR_SIZE 22
+set $XCURSOR_THEME GoogleDot-Black
+# exec --no-startup-id export XCURSOR_SIZE=22
+# exec --no-startup-id export XCURSOR_THEME=GoogleDot-Black
+#
+# # NVIDIA Settings
+# exec --no-startup-id export LIBVA_DRIVER_NAME=nvidia
+# exec --no-startup-id export GBM_BACKEND=nvidia-drm
+# exec --no-startup-id export __GLX_VENDOR_LIBRARY_NAME=nvidia
+# exec --no-startup-id export NVD_BACKEND=direct
+#
+# # QT and GTK settings
+# exec --no-startup-id export QT_QPA_PLATFORM=xcb
+# exec --no-startup-id export GDK_BACKEND=x11
+# exec --no-startup-id export GDK_SCALE=1
+# exec --no-startup-id export GDK_DPI_SCALE=1
+# exec --no-startup-id export QT_SCALE_FACTOR=1.5
+# exec --no-startup-id export QT_AUTO_SCREEN_SCALE_FACTOR=1
+
+## LOOK AND FEEL
+font pango:CaskaydiaCove Nerd Font 12
+
+# Gaps and borders
+for_window [class=".*"] border pixel 2
+for_window [class=".*"] opacity 1.0
+for_window [class=".*"] opacity 0.8, floating enable
+gaps inner 10
+gaps outer 5
+gaps bottom -8
+# class (colors)        border  backgr. text    indicator child_border
+client.focused          #000000 #000000 #ffffff #aaaaaa   #cccccc
+client.focused_inactive #000000 #000000 #ffffff #666666   #888888
+client.unfocused        #000000 #000000 #ffffff #666666   #888888
+client.urgent           #000000 #000000 #ffffff #666666   #888888
+client.placeholder      #000000 #000000 #ffffff #666666   #888888
+
+client.background       #000000
+
+
+# Disable shadows, blur, and animations (i3 has no built-in support, use picom instead)
+# exec --no-startup-id picom --config ~/.config/picom.conf
+
+## INPUT CONFIGURATION
+# Keyboard layout
+exec --no-startup-id setxkbmap -layout us,ua,cz -option grp:alt_shift_toggle
+
+# Touchpad settings
+exec --no-startup-id xinput set-prop 'ASUE1211:00 04F3:3211 Touchpad' 'libinput Natural Scrolling Enabled' 1
+
+## KEYBINDINGS
+include ~/.config/i3/binds.conf
+
+## WINDOW RULES
+for_window [class="VirtualBox Machine"] floating enable
+for_window [class="nwg-displays"] floating enable
+for_window [class="org.pulseaudio.pavucontrol"] floating enable, resize set 50 ppt 80 ppt
+for_window [title="Fireplace"] floating enable, move position center
+for_window [title=".*_floating.*"] floating enable, resize set 70 ppt 70 ppt
+for_window [class="steam_app.*"] tiling enable
+
+# Lid switch handling
+# bindsym XF86PowerOff exec $conf_folder/scripts/lid-handling.bash close
+# bindsym XF86WakeUp exec $conf_folder/scripts/lid-handling.bash open
