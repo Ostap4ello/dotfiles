@@ -51,12 +51,13 @@ vim.opt.expandtab = true -- TODO: <-
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
-vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winpos,terminal,localoptions"
+vim.opt.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winpos,terminal,localoptions"
 vim.opt.formatoptions = "tcroqlj" --<- TODO:
 
 -- Wrap for different filetypes
 vim.opt.wrap = false
 vim.opt.linebreak = false
+vim.g.textwidth = 100
 
 -- Vim window width
 vim.g.winminwidth = 6

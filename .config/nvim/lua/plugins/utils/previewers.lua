@@ -117,6 +117,7 @@ return {
             end
 
             local insertHeaders = function()
+                -- NOTE: see https://pandoc.org/MANUAL.html#variables-for-latex
                 local headers = {
                     "---",
                     "pandoc_:",

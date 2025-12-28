@@ -234,6 +234,33 @@ return {
                     -- end
                 end,
             })
+
+            -- Texlive autocmd
+            local aucmd_texlab_id = nil
+            local startTexlabPreview = function()
+                aucmd_texlab_id = vim.api.nvim_create_autocmd("BufWritePost", {
+                    buffer = 0,
+                    callback = function()
+                        vim.cmd("LspTexlabBuild")
+                    end,
+                })
+            end
+
+            local stopTexlabPreview = function()
+                if aucmd_texlab_id ~= nil then
+                    vim.api.nvim_del_autocmd(aucmd_texlab_id)
+                end
+            end
+
+            vim.api.nvim_create_autocmd("BufEnter", {
+                pattern = "*.tex",
+                callback = function()
+                    vim.api.nvim_buf_create_user_command(0, "TexlabStartPreview", startTexlabPreview, {})
+                    vim.api.nvim_buf_create_user_command(0, "TexlabStopPreview", stopTexlabPreview, {})
+                end,
+                group = vim.api.nvim_create_augroup("TexlabPreviewerGroup", {}),
+                desc = "Automatically build .tex with texlab on save."
+            })
         end,
     },
 }

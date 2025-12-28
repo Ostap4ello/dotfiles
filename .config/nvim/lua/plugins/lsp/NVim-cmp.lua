@@ -12,7 +12,7 @@ return {
 
             "hrsh7th/cmp-path",
             -- "hrsh7th/cmp-calc",
-            "octaltree/cmp-look",
+            -- "octaltree/cmp-look",
             config = function()
                 require("luasnip.loaders.from_vscode").lazy_load()
             end,
@@ -46,8 +46,8 @@ return {
 
                     -- If you prefer more traditional completion keymaps,
                     -- you can uncomment the following lines
-                    --['<CR>'] = cmp.mapping.confirm { select = true },
-                    --['<Tab>'] = cmp.mapping.select_next_item(),
+                    ['<CR>'] = cmp.mapping.confirm { select = true },
+                    -- ['<Tab>'] = cmp.mapping.select_next_item(),
                     --['<S-Tab>'] = cmp.mapping.select_prev_item(), for each
 
                     -- Manually trigger a completion from nvim-cmp.
@@ -72,7 +72,7 @@ return {
                     { name = "path", priority = 2 },
                     { name = "buffer", priority = 1 }, -- cmp-buffer
                     -- { name = "calc", priority = 1 },
-                    { name = "look", priority = 1 },
+                    -- { name = "look", priority = 1 },
                 },
             })
         end,
