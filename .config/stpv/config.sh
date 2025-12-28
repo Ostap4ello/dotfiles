@@ -1,0 +1,10 @@
+PV_IMAGE_ENABLED=1        # show image previews when possible
+PV_TYPE="ueberzug"               # (ueberzug|kitty|sixel|ansi|ascii|img|text)
+PREFER_TEXT=0              # prefer text over images when displaying documents
+DARK_DOCS=0                # invert documents preview color in image previews
+SAFE=0                    # kill itself if needed (check main for details)
+AUTO_ORIENT=1             # auto orient images
+MAX_IMG_CACHE_SIZE=300kb  # max image cache size
+MAX_IMG_CACHE_W=10000      # max image cached image width
+MAX_IMG_CACHE_H=10000     # max image cached image height
+TIMEOUT=5                 # maximum time in seconds stpv should take, approximately
