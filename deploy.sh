@@ -11,12 +11,12 @@ deploy_single_target() {
     local src=$1
     local dest=$2
 
-    log "Checking directory $check_dir"
+    # log "Checking directory $check_dir"
     local check_dir;
     if [ -d "$src" ]; then
         check_dir="$dest"
     else
-        check_dir="$(dirname "$dest")"
+        check_dir="$(dirname "${dest%%/}")"
     fi
     if [ ! -d "$check_dir" ]; then
         log "Creating directory $check_dir"
