@@ -3,16 +3,16 @@
     "layer": "top",
     "position": "bottom", // top|bottom|left|right
     "gtk-layer-shell": true,
-    "height": "12pt",
+    "height": 40,
     // "width": 1920,
-    "margin-bottom": 12,
-    "margin-top": 2,
-    "margin-left": 10,
-    "margin-right": 10,
+    "margin-bottom": 0,
+    "margin-top": -10,
+    "margin-left": -3,
+    "margin-right": -3,
 
-    "modules-left": [ "image#appmenu", "custom/clock",/* "custom/separator", "custom/hints",*/ "custom/separator", "hyprland/language" ],
+    "modules-left": [ "custom/spacer", "image#appmenu", "custom/clock",/* "custom/separator", "custom/hints",*/ "custom/separator", "hyprland/language" ],
     "modules-center": [ "hyprland/workspaces" ],
-    "modules-right": [ "tray", "cpu", "memory", "custom/separator" , "pulseaudio", "custom/separator", "network", "custom/separator", "battery" ],
+    "modules-right": [ "tray", "cpu", "memory", "custom/separator" , "pulseaudio", "custom/separator", "network", "custom/separator", "battery", "custom/spacer" ],
 
     // Modules configuration
 
@@ -184,6 +184,10 @@
 
     "custom/separator": {
     "format":"|"
+    },
+
+    "custom/spacer": {
+    "format":" "
     },
 
     "custom/hints": {
