@@ -3,114 +3,408 @@
 # A script to handle local ollama docker container management
 #
 
+# defaults
+context_length=32000
+container_name="ollama-node-1"
+container_gpus="all"
+model="gemma3:1b"
+
 log() {
     echo "- $*"
 }
 
 help_message() {
-    echo ""
-    echo "Usage: $0 <command> [<command> ...] [--name <container-name>] [--help|-h]"
-    echo ""
-    echo "Manage an Ollama Docker container."
-    echo ""
-    echo "Commands:"
-    echo "  r   - run container with nvidia gpu support"
-    echo "  rN  - run container without nvidia gpu support"
-    echo "  k   - kill and remove container"
-    echo "  a   - attach to the container"
-    echo "  b   - start container"
-    echo "  s   - stop container"
-    echo "  h   - show this message"
-    echo ""
-    echo "Options:"
-    echo "  --name <container-name>  Specify the container name (default: ollama-node-1)"
-    echo "  --context-length <length>  Set the context length (default: 32000)"
-    echo "  -h, --help              Show this help message"
-    echo ""
+    cat << EOF
+Usage: $0 <command> [options]
+
+Manage an Ollama Docker container.
+
+Commands:
+  r | run             Run container (with --gpus=all by default)
+    --context-length <length> sets the context length (default: ${context_length})
+  k | kill            Kill and remove container
+  a | attach          Attach to the container
+  b | boot            Start container
+  s | stop            Stop container
+
+  g | generate        Generate text using a model (default: $model). Empty
+                      input stops the model.
+    -m | --model <model> to specify another model to use.
+
+Options:
+  -h, --help                   Show this help message
+
+Note:
+  For all docker-related commands (r|k|a|b|s) you can pass additional docker flags
+  after the command, e.g., --gpus none.
+EOF
 }
 
-main() {
+ollama_docker_action() {
+    cmd="$1"
+    shift
+    pass_args=("$@")
 
-    commands=()
-    context_length=32000
-    container_name="ollama-node-1"
+    case "$cmd" in
+        r|run)
+            docker run -d \
+                --name "$container_name" \
+                -e OLLAMA_CONTEXT_LENGTH="$context_length" \
+                -v ollama:/root/.ollama \
+                -p 11434:11434 \
+                --gpus="$container_gpus" \
+                "${pass_args[@]}" \
+                ollama/ollama
+            ;;
+        k|kill)
+            docker rm -f "${pass_args[@]}" "$container_name"
+            ;;
+        a|attach)
+            docker exec "${pass_args[@]}" -it "$container_name" /bin/bash
+            ;;
+        b|boot)
+            docker start "${pass_args[@]}" "$container_name"
+            ;;
+        s|stop)
+            docker stop "${pass_args[@]}" "$container_name"
+            ;;
+        c|cmd)
+            docker exec -it "$container_name" /bin/ollama "${pass_args[@]}"
+            ;;
+    esac
+}
+
+
+generate() {
+    process_stream_ollama_generate() {
+        # Not used but kept for reference
+
+        # {
+        # "model": <string>,
+        # "created_at": <string-date>,
+        # "response": "<model-generated-token>",
+        # "done": false <<< !
+        # }
+        #
+        # {
+        # "model": <string>,
+        # "created_at": <string-date>,
+        # "response": "", <<< empty when done
+        # "done": true, <<< !
+        # "done_reason": "stop", ?
+        # "context": [ ... ],
+        # "total_duration": 5590620930,
+        # "load_duration": 219898205,
+        # "prompt_eval_count": 15,
+        # "prompt_eval_duration": 22548333,
+        # "eval_count": 472,
+        # "eval_duration": 5346710300
+        # }
+
+        while read -r json_bit; do
+            is_done=$(echo "$json_bit" | jq -c '.done' | tr -d '"') || exit 1 # what if returned non-json?
+
+            if [ "$is_done" = "false" ]; then
+                token=$(echo "$json_bit" | jq -c '.response' | tr -d '"')
+                printf '%b' "$token"
+            else
+                echo ''
+                log "Generation complete."
+                echo "$json_bit" | jq '.model, .done_reason, .total_duration'
+                exit 0
+            fi
+
+        done
+    }
+
+    process_stream_responses() {
+        # {
+        #   "type": "response.in_progress",
+        #   "response": {
+        #     "id": "resp_0c2beddef9e5265f006970a5a00658819092db9d93d0cd7042",
+        #     "object": "response",
+        #     "created_at": 1768990112,
+        #     "status": "in_progress",
+        #     "background": false,
+        #     "completed_at": null,
+        #     "error": null,
+        #     "frequency_penalty": 0.0,
+        #     "incomplete_details": null,
+        #     "instructions": "You are a helpful assistant.",
+        #     "max_output_tokens": null,
+        #     "max_tool_calls": null,
+        #     "model": "gpt-5-mini-2025-08-07",
+        #     "output": [],
+        #     "parallel_tool_calls": true,
+        #     "presence_penalty": 0.0,
+        #     "previous_response_id": null,
+        #     "prompt_cache_key": null,
+        #     "prompt_cache_retention": null,
+        #     "reasoning": {
+        #       "effort": "medium",
+        #       "summary": null
+        #     },
+        #     "safety_identifier": null,
+        #     "service_tier": "auto",
+        #     "store": true,
+        #     "temperature": 1.0,
+        #     "text": {
+        #       "format": {
+        #         "type": "text"
+        #       },
+        #       "verbosity": "medium"
+        #     },
+        #     "tool_choice": "auto",
+        #     "tools": [],
+        #     "top_logprobs": 0,
+        #     "top_p": 1.0,
+        #     "truncation": "disabled",
+        #     "usage": null,
+        #     "user": null,
+        #     "metadata": {}
+        #   },
+        #   "sequence_number": 1
+        # }
+        #
+        # {
+        #   "type": "response.output_text.delta",
+        #   "content_index": 0,
+        #   "delta": "?",
+        #   "item_id": "msg_0c2beddef9e5265f006970a5a0f0348190b4ffc7184bc474d8",
+        #   "logprobs": [],
+        #   "obfuscation": "CsGGhCDDvuZF7Yx",
+        #   "output_index": 1,
+        #   "sequence_number": 14
+        # }
+        #
+        # {
+        # "type":"response.completed",
+        # "response":
+        #     {
+        #     "id":"resp_0c2beddef9e5265f006970a5a00658819092db9d93d0cd7042",
+        #     "object":"response",
+        #     "created_at":1768990112,
+        #     "status":"completed",
+        #     "background":false,
+        #     "completed_at":1768990113,
+        #     "error":null,
+        #     "frequency_penalty":0.0,
+        #     "incomplete_details":null,
+        #     "instructions":"You are a helpful assistant.",
+        #     "max_output_tokens":null,
+        #     "max_tool_calls":null,
+        #     "model": "gpt-5-mini-2025-08-07",
+        #     "output": [
+        #         {
+        #         "id":"rs_0c2beddef9e5265f006970a5a03b5c8190989028c26cc131f1",
+        #         "type":"reasoning",
+        #         "summary":[]
+        #         },
+        #         {
+        #         "id":"msg_0c2beddef9e5265f006970a5a0f0348190b4ffc7184bc474d8",
+        #         "type":"message",
+        #         "status":"completed",
+        #         "content": [
+        #             {
+        #             "type":"output_text",
+        #             "annotations":[],
+        #             "logprobs":[],
+        #             "text":"Hello! How can I help you today?"
+        #             }
+        #         ] ,
+        #         "role":"assistant"
+        #         }
+        #     ] ,
+        #     "parallel_tool_calls":true,
+        #     "presence_penalty":0.0,
+        #     "previous_response_id":null,
+        #     "prompt_cache_key":null,
+        #     "prompt_cache_retention":null,
+        #     "reasoning":
+        #         {
+        #         "effort":"medium",
+        #         "summary":null
+        #         },
+        #     "safety_identifier":null,
+        #     "service_tier":"default",
+        #     "store":true,
+        #     "temperature":1.0,
+        #     "text":
+        #     {
+        #         "format": { "type":"text" },
+        #         "verbosity":"medium"
+        #     },
+        #     "tool_choice":"auto",
+        #     "tools":[],
+        #     "top_logprobs":0,
+        #     "top_p":1.0,
+        #     "truncation":"disabled",
+        #     "usage":
+        #     {
+        #         "input_tokens":18,
+        #         "input_tokens_details":{"cached_tokens":0},
+        #         "output_tokens":15,
+        #         "output_tokens_details":{"reasoning_tokens":0},
+        #         "total_tokens":33
+        #     },
+        #     "user":null,
+        #     "metadata":{}
+        #     },
+        # "sequence_number":18
+        # }
+
+
+
+        while read -r line; do
+            [[ "$line" =~ ^([^\ ]*):\ (\{.*\})\s*$ ]] || continue # skip empty or non-parsable line line
+
+            json_bit=${BASH_REMATCH[2]}
+
+            responce_type=$(echo "$json_bit" | jq -c '.type' | tr -d '"') || exit 1 # what if returned non-json?
+
+            if [ "$responce_type" = "response.output_text.delta" ]; then
+                token=$(echo "$json_bit" | jq -c '.delta' | tr -d '"')
+                printf '%b' "$token"
+            elif [ "$responce_type" = "response.completed" ]; then
+                echo ''
+                log "Generation complete."
+                echo "$json_bit" | jq '.response' | jq '.model, .usage.total_tokens, .id'
+                exit 0
+            fi
+        done
+    }
+
+    model="$1"
+    shift
+    pass_args=("$@")
+
+    base_url="http://ollama-server:11434/v1"
+    if [ -n "$OPENAI_BASE_URL" ]; then
+        base_url="$OPENAI_BASE_URL"
+        [ -z "$OPENAI_API_KEY" ] && \
+            log "Warning: OPENAI_API_KEY is not set. Requests may fail."
+    fi
+
+    if [ "${#pass_args[@]}" -ne 0 ]; then
+        log "Generating with model '$model' at '$base_url' ..."
+        curl -s http://localhost:11434/v1/responses \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $OPENAI_API_KEY" \
+            -d '{
+                  "model": "'"$model"'",
+                  "input": "'"${pass_args[*]}"'",
+                  "stream": true
+                }' | { process_stream_responses; }
+    else
+        log "No input provided for generation - shuting down model '$model'."
+    fi
+
+    if [ -z "$OPENAI_BASE_URL" ]; then
+        # Shut down the model on ollama server to save resources
+        curl http://127.0.0.1:11434/api/generate -s 1>/dev/null -d '{
+          "model": "'"$model"'",
+          "keep_alive": "0"
+        }'
+    fi
+}
+
+
+main() {
 
     if [ "$#" -eq 0 ]; then
         echo "No arguments provided. Use --help or -h for usage information."
         exit 1;
     fi
-    while [ "$#" -gt 0 ]; do
-        case "$1" in
-            r|rN|a|b|s|k)
-                commands+=("$1")
-                shift
-                ;;
-            -h|--help)
-                help_message
-                exit 0
-                ;;
-            --name)
-                if [ -n "$2" ]; then
-                    container_name="$2"
-                    shift 2
-                else
-                    echo "Error: --name requires a non-empty argument."
-                    exit 1
-                fi
-                ;;
-            --context-length)
-                if [ -n "$2" ]; then
-                    context_length="$2"
-                    shift 2
-                else
-                    echo "Error: --context-length requires a non-empty argument."
-                    exit 1
-                fi
-                ;;
-            *)
-                help_message
-                exit 1
-                ;;
-        esac
-    done
 
-    for cmd in "${commands[@]}"; do
-        case "$cmd" in
-            r)
-                docker run -d \
-                    --name "$container_name" \
-                    -e OLLAMA_CONTEXT_LENGTH="$context_length" \
-                    -v ollama:/root/.ollama \
-                    -p 11434:11434 \
-                    --gpus=all \
-                    ollama/ollama
-                ;;
-            rN)
-                docker run -d \
-                    --name "$container_name" \
-                    -v ollama:/root/.ollama \
-                    -e OLLAMA_CONTEXT_LENGTH="$context_length" \
-                    -p 11434:11434 \
-                    ollama/ollama
-                ;;
-            k)
-                docker rm -f "$container_name"
-                ;;
-            a)
-                docker exec -it "$container_name" /bin/bash
-                ;;
-            b)
-                docker start "$container_name"
-                ;;
-            s)
-                docker stop "$container_name"
-                ;;
-            *)
-                help_message
-                exit 1
-                ;;
-        esac
-    done
+    if [[ " $@ " =~ " -h " ]] || [[ " $@ " =~ " --help " ]]; then
+        help_message
+        exit 0
+    fi
+
+    cmd="$1"
+    shift
+
+    case "$cmd" in
+        r|run)
+            ;&
+        k|kill)
+            ;&
+        a|attach)
+            ;&
+        b|boot)
+            ;&
+        s|stop)
+            while [ "$#" -gt 0 ]; do
+                pass_args=()
+                case "$1" in
+                    --name)
+                        if [ -n "$2" ]; then
+                            container_name="$2"
+                            shift 2
+                        else
+                            echo "Error: --name requires a non-empty argument."
+                            exit 1
+                        fi
+                        ;;
+                    --context-length)
+                        if [ -n "$2" ]; then
+                            context_length="$2"
+                            shift 2
+                        else
+                            echo "Error: --context-length requires a non-empty argument."
+                            exit 1
+                        fi
+                        ;;
+                    --gpus)
+                        if [ -n "$2" ]; then
+                            container_gpus="$2"
+                            shift 2
+                        else
+                            echo "Error: --gpus requires a non-empty argument."
+                            exit 1
+                        fi
+                        ;;
+                    *)
+                        # Issue  --flag-w-arg --gpus all will be erroneous as
+                        # --gpus will be treated as flag, but not as
+                        # --flag-w-arg argument
+                        pass_args+=("$1")
+                        shift
+                        ;;
+                esac
+            done
+            ollama_docker_action "$cmd" "${pass_args[@]}"
+            ;;
+        c|cmd)
+            ollama_docker_action "$cmd" "$@"
+            ;;
+        g|generate)
+            while [ "$#" -gt 0 ]; do
+                pass_args=()
+                case "$1" in
+                    --model|-m)
+                        if [ -n "$2" ]; then
+                            model="$2"
+                            shift 2
+                        else
+                            echo "Error: --model requires a non-empty argument."
+                            exit 1
+                        fi
+                        ;;
+                    *)
+                        # Issue
+                        pass_args+=("$1")
+                        shift
+                        ;;
+                esac
+            done
+            generate "$model" "${pass_args[@]}"
+            ;;
+        *)
+            help_message
+            exit 1
+            ;;
+    esac
 
     exit 0
 }

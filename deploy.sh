@@ -24,11 +24,11 @@ deploy_single_target() {
     fi
 
     log "Deploying $src to $dest"
-    if [ -e "$dest" ]; then
-        if [ -L "$dest" ]; then
-            log "Removing existing symlink $dest"
-            rm "$dest"
-        elif [ -e "$dest.bak" ]; then
+    if [ -L "$dest" ]; then
+        log "Removing existing symlink $dest"
+        rm "$dest"
+    elif [ -e "$dest" ]; then
+        if [ -e "$dest.bak" ]; then
             i=1
             while [ -e "$dest.bak.$i" ]; do
                 ((i++))
@@ -54,19 +54,19 @@ deploy_all() {
 
     # .config/*
     for src in .config/*; do
-        if [ -f "$src" ]; then
-            continue
-        fi
         dest="$HOME/.config/$(basename "$src")"
         deploy_single_target "$src" "$dest"
     done
 
     # .local/share/*
     for src in .local/share/*; do
-        if [ -f "$src" ]; then
-            continue
-        fi
         dest="$HOME/.local/share/$(basename "$src")"
+        deploy_single_target "$src" "$dest"
+    done
+
+    # .local/bin/*
+    for src in .local/bin/*; do
+        dest="$HOME/.local/bin/$(basename "$src")"
         deploy_single_target "$src" "$dest"
     done
 
