@@ -2,13 +2,15 @@
 .bash_history*
 .config/hypr/hypr.session
 .config/hypr/hyprsession.conf
-.config/hypr/monitors.conf
 .config/hypr/monitors-persistent.conf
+.config/hypr/monitors.conf
 .config/nvim/lazy-lock.json
 .config/tmux/plugins
 .config/tmux/tpm
+.config/vim/.netrwhist
 **/*.bak
 **/.*.bak
+**/__pycache__
 
 # !.config/<sth>
 # !.config/<sth>/**
