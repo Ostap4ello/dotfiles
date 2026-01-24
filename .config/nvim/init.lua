@@ -33,9 +33,18 @@ elseif vim.g.neovide then
 
     require("neovide-conf")
     -- require("nvim-tree.api").tree.close()
+    require("lazy").setup({
+        spec = {
+            { import = "plugins" },
+            { import = "plugins/utils" },
+            { import = "plugins/lsp" },
+            { import = "plugins/misc" },
+        },
+    })
+    vim.cmd("colorscheme lunaperche")
     vim.api.nvim_create_autocmd("VimEnter", {
         callback = function()
-            vim.cmd("SessionSearch")
+            vim.cmd("AutoSession search")
         end,
     })
 else
