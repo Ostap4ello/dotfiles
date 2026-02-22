@@ -1,5 +1,5 @@
 configuration {
-    modi: "window,drun,run,emoji,calc";
+    modi: "window,drun,run";
     dpi: 0;
     show-icons: false;
 }
