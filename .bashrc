@@ -141,10 +141,9 @@ superumount() {
 stmux() {
     out="$(tmux ls 2>/dev/null | grep -Eo '^TEMP')"
     if [ -z "$out" ]; then
-        tmux new-session -s TEMP \; choose-session \;
-    else
-        tmux attach-session -t TEMP \; choose-session \;
+        tmux new-session -s TEMP \; detach \;
     fi
+    tmux attach-session -t TEMP \; lazy-restore-choose \;
 
     tmux kill-session -t TEMP
 }
