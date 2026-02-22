@@ -69,7 +69,7 @@ return {
                     },
                 },
                 texlab = {
-                    -- cmd = { "texlab" },
+                    cmd = { "texlab" },
                     -- filetypes = { "tex", "plaintex", "bib" },
                     -- root_markers = { ".git", ".latexmkrc", "latexmkrc", ".texlabroot", "texlabroot", "Tectonic.toml" },
                     settings = {
@@ -108,11 +108,13 @@ return {
                     cmd = { "clangd", "--header-insertion=never" },
                 },
                 pyright = {},
+                stylua = {
+                    cmd = { "stylua" },
+                },
             }
             local misc = {
                 "asmfmt",
                 "black",
-                "stylua",
                 "beautysh",
                 "shfmt",
                 "jq",
@@ -123,7 +125,8 @@ return {
             local ensure_installed = vim.tbl_keys(servers or {})
             ensure_installed = vim.list_extend(ensure_installed, misc)
 
-            require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
+            -- NOTE: some mason packages (clang, lua-language-server, stylua, texlab) are incompatible with termux
+            -- require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
             require("mason-lspconfig").setup({
                 handlers = {
