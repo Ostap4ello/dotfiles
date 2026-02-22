@@ -1,6 +1,6 @@
 -- Neovide configuration
 -- Set GUI font
-vim.o.guifont = "CaskaydiaCove NFM SemiLight:h10"
+vim.o.guifont = "CaskaydiaCove NFM SemiLight:h11"
 
 -- refresh rate and translucency
 vim.g.neovide_refresh_rate = 120
