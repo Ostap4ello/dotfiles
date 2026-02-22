@@ -4,4 +4,4 @@ configuration {
     show-icons: false;
 }
 
-@theme "/home/ostap4ello/.local/share/rofi/themes/minimal-black.rasi"
+@theme "~/.local/share/rofi/themes/minimal-black.rasi"
