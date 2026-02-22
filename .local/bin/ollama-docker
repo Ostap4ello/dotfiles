@@ -7,40 +7,26 @@
 context_length=32000
 container_name="ollama-node-1"
 container_gpus="all"
-model="gemma3:1b"
+model_generate="qwen3:1.7b"
+model_embed="qwen3-embedding:0.6b"
 
 log() {
     echo "- $*"
 }
 
-help_message() {
-    cat << EOF
-Usage: $0 <command> [options]
+get_base_url() {
+    local url="http://127.0.0.1:11434/v1"
 
-Manage an Ollama Docker container.
+    if [ -n "$OPENAI_BASE_URL" ]; then
+        url="$OPENAI_BASE_URL"
+        [ -z "$OPENAI_API_KEY" ] && \
+            log "Warning: OPENAI_API_KEY is not set. Requests may fail."
+    fi
 
-Commands:
-  r | run             Run container (with --gpus=all by default)
-    --context-length <length> sets the context length (default: ${context_length})
-  k | kill            Kill and remove container
-  a | attach          Attach to the container
-  b | boot            Start container
-  s | stop            Stop container
-
-  g | generate        Generate text using a model (default: $model). Empty
-                      input stops the model.
-    -m | --model <model> to specify another model to use.
-
-Options:
-  -h, --help                   Show this help message
-
-Note:
-  For all docker-related commands (r|k|a|b|s) you can pass additional docker flags
-  after the command, e.g., --gpus none.
-EOF
+    echo "$url"
 }
 
-ollama_docker_action() {
+docker_action() {
     cmd="$1"
     shift
     pass_args=("$@")
@@ -74,48 +60,47 @@ ollama_docker_action() {
     esac
 }
 
-
 generate() {
-    process_stream_ollama_generate() {
-        # Not used but kept for reference
+    # process_stream_generate() {
+    #     # Not used but kept for reference
 
-        # {
-        # "model": <string>,
-        # "created_at": <string-date>,
-        # "response": "<model-generated-token>",
-        # "done": false <<< !
-        # }
-        #
-        # {
-        # "model": <string>,
-        # "created_at": <string-date>,
-        # "response": "", <<< empty when done
-        # "done": true, <<< !
-        # "done_reason": "stop", ?
-        # "context": [ ... ],
-        # "total_duration": 5590620930,
-        # "load_duration": 219898205,
-        # "prompt_eval_count": 15,
-        # "prompt_eval_duration": 22548333,
-        # "eval_count": 472,
-        # "eval_duration": 5346710300
-        # }
+    #     # {
+    #     # "model": <string>,
+    #     # "created_at": <string-date>,
+    #     # "response": "<model-generated-token>",
+    #     # "done": false <<< !
+    #     # }
+    #     #
+    #     # {
+    #     # "model": <string>,
+    #     # "created_at": <string-date>,
+    #     # "response": "", <<< empty when done
+    #     # "done": true, <<< !
+    #     # "done_reason": "stop", ?
+    #     # "context": [ ... ],
+    #     # "total_duration": 5590620930,
+    #     # "load_duration": 219898205,
+    #     # "prompt_eval_count": 15,
+    #     # "prompt_eval_duration": 22548333,
+    #     # "eval_count": 472,
+    #     # "eval_duration": 5346710300
+    #     # }
 
-        while read -r json_bit; do
-            is_done=$(echo "$json_bit" | jq -c '.done' | tr -d '"') || exit 1 # what if returned non-json?
+    #     while read -r json_bit; do
+    #         is_done=$(echo "$json_bit" | jq -c '.done' | tr -d '"') || exit 1 # what if returned non-json?
 
-            if [ "$is_done" = "false" ]; then
-                token=$(echo "$json_bit" | jq -c '.response' | tr -d '"')
-                printf '%b' "$token"
-            else
-                echo ''
-                log "Generation complete."
-                echo "$json_bit" | jq '.model, .done_reason, .total_duration'
-                exit 0
-            fi
+    #         if [ "$is_done" = "false" ]; then
+    #             token=$(echo "$json_bit" | jq -c '.response' | tr -d '"')
+    #             printf '%b' "$token"
+    #         else
+    #             echo ''
+    #             log "Generation complete."
+    #             echo "$json_bit" | jq '.model, .done_reason, .total_duration'
+    #             exit 0
+    #         fi
 
-        done
-    }
+    #     done
+    # }
 
     process_stream_responses() {
         # {
@@ -253,8 +238,6 @@ generate() {
         # "sequence_number":18
         # }
 
-
-
         while read -r line; do
             [[ "$line" =~ ^([^\ ]*):\ (\{.*\})\s*$ ]] || continue # skip empty or non-parsable line line
 
@@ -274,27 +257,91 @@ generate() {
         done
     }
 
-    model="$1"
+    local model="$1"
     shift
-    pass_args=("$@")
 
-    base_url="http://ollama-server:11434/v1"
-    if [ -n "$OPENAI_BASE_URL" ]; then
-        base_url="$OPENAI_BASE_URL"
-        [ -z "$OPENAI_API_KEY" ] && \
-            log "Warning: OPENAI_API_KEY is not set. Requests may fail."
-    fi
+    pass_args="$*"
 
-    if [ "${#pass_args[@]}" -ne 0 ]; then
+    pass_args=${pass_args//$'\n'/\\n}
+    pass_args=${pass_args//$'"'/\\\"}
+
+    base_url=$(get_base_url)
+
+    if [ -n "$pass_args" ]; then
+        echo '{
+            "model": "'"$model"'",
+            "input": "'"$pass_args"'",
+        }'
         log "Generating with model '$model' at '$base_url' ..."
-        curl -s http://localhost:11434/v1/responses \
+        curl $base_url/responses \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $OPENAI_API_KEY" \
             -d '{
                   "model": "'"$model"'",
-                  "input": "'"${pass_args[*]}"'",
+                  "input": "'"$pass_args"'"
+                }' #| { process_stream_responses; }
+    else
+        log "No input provided for generation - shuting down model '$model'."
+    fi
+
+    if [ -z "$OPENAI_BASE_URL" ]; then
+        # Shut down the model on ollama server to save resources
+        curl http://127.0.0.1:11434/api/generate -s 1>/dev/null -d '{
+          "model": "'"$model"'",
+          "keep_alive": "0"
+        }'
+    fi
+}
+
+embed() {
+    local model="$1"
+    shift
+
+    method="$1"
+    shift
+
+    pass_args="["
+    for thing in "$@"; do
+        case "$method" in
+            t|text)
+                content="$thing"
+                ;;
+            f|files)
+                if [ -f "$thing" ]; then
+                    content="$(<"$thing")"
+                else
+                    log "Warning: File '$thing' does not exist or is not a regular file. Skipping."
+                fi
+                ;;
+            *)
+                log "Unsupported embedding method '$method'. Only 'text' is supported."
+                exit 1
+                ;;
+        esac
+
+        content=${content//$'\n'/\\n}
+        content=${content//$'"'/\\\"}
+
+        pass_args+="\"$content\", "
+    done
+    pass_args=${pass_args%, } # Remove trailing comma and space
+    pass_args+="]"
+
+
+    base_url=$(get_base_url)
+
+    if [ -n "$pass_args" ]; then
+        log "Generating with model '$model' at '$base_url' ..."
+        curl $base_url/embeddings \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $OPENAI_API_KEY" \
+            -s \
+            -d '{
+                  "model": "'"$model"'",
+                  "input": '"$pass_args"',
                   "stream": true
-                }' | { process_stream_responses; }
+                }' | jq -c '.data[] | .embedding'
+                # Pretty print embeddings, one value per line
     else
         log "No input provided for generation - shuting down model '$model'."
     fi
@@ -309,16 +356,70 @@ generate() {
 }
 
 
+
+help_message() {
+    cat << EOF
+Usage: $0 [--name <name>] <command> [command-options]
+
+Manage an Ollama Docker container.
+
+Commands:
+  r | run             Run container
+    --context-length <length>  sets the context length (default: ${context_length})
+    --gpus <gpus>              specify GPUs (default: ${container_gpus})
+  k | kill            Kill and remove container
+  a | attach          Attach to the container
+  b | begin           Start container
+  s | stop            Stop container
+
+  g | generate        Generate text using a model (default: $model). Empty
+                      input stops the model.
+    -m | --model <model>       specify another model to use.
+  e | embed            Get embeddings from a model (default: $model).
+    -m | --model <model>       specify another model to use.
+  c | command         Passes all arguments after that to "ollama" CLI command inside the 
+                      container, e.g., "ollama-docker c ls" will do "ollama ls" inside the 
+                      container.
+
+Global Options:
+  --name <name>               Container name (default: ${container_name})
+  -h, --help                  Show this help message
+
+Note:
+  For all docker-related commands (r|k|a|b|s) you can pass additional docker flags
+  after the command, e.g., docker flags.
+EOF
+}
+
 main() {
 
-    if [ "$#" -eq 0 ]; then
-        echo "No arguments provided. Use --help or -h for usage information."
-        exit 1;
-    fi
+    # Parse global flags before the command
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            -n|--name)
+                if [ -n "$2" ]; then
+                    container_name="$2"
+                    shift 2
+                else
+                    echo "Error: --name requires a non-empty argument."
+                    exit 1
+                fi
+                ;;
+            -h|--help)
+                help_message
+                exit 0
+                ;;
 
-    if [[ " $@ " =~ " -h " ]] || [[ " $@ " =~ " --help " ]]; then
-        help_message
-        exit 0
+            *)
+                # Found the command
+                break
+                ;;
+        esac
+    done
+
+    if [ "$#" -eq 0 ]; then
+        echo "Error: No command provided. Use -h or --help for usage information."
+        exit 1
     fi
 
     cmd="$1"
@@ -326,26 +427,10 @@ main() {
 
     case "$cmd" in
         r|run)
-            ;&
-        k|kill)
-            ;&
-        a|attach)
-            ;&
-        b|boot)
-            ;&
-        s|stop)
+            # Parse run-specific flags
+            pass_args=()
             while [ "$#" -gt 0 ]; do
-                pass_args=()
                 case "$1" in
-                    --name)
-                        if [ -n "$2" ]; then
-                            container_name="$2"
-                            shift 2
-                        else
-                            echo "Error: --name requires a non-empty argument."
-                            exit 1
-                        fi
-                        ;;
                     --context-length)
                         if [ -n "$2" ]; then
                             context_length="$2"
@@ -365,26 +450,32 @@ main() {
                         fi
                         ;;
                     *)
-                        # Issue  --flag-w-arg --gpus all will be erroneous as
-                        # --gpus will be treated as flag, but not as
-                        # --flag-w-arg argument
                         pass_args+=("$1")
                         shift
                         ;;
                 esac
             done
-            ollama_docker_action "$cmd" "${pass_args[@]}"
+            docker_action "$cmd" "${pass_args[@]}"
             ;;
-        c|cmd)
-            ollama_docker_action "$cmd" "$@"
+        k|kill)
+            ;&
+        a|attach)
+            ;&
+        b|begin)
+            ;&
+        s|stop)
+            ;&
+        c|command)
+            docker_action "$cmd" "$@"
             ;;
         g|generate)
+            # Parse run-specific flags
+            pass_args=()
             while [ "$#" -gt 0 ]; do
-                pass_args=()
                 case "$1" in
                     --model|-m)
                         if [ -n "$2" ]; then
-                            model="$2"
+                            model_generate="$2"
                             shift 2
                         else
                             echo "Error: --model requires a non-empty argument."
@@ -392,13 +483,34 @@ main() {
                         fi
                         ;;
                     *)
-                        # Issue
                         pass_args+=("$1")
                         shift
                         ;;
                 esac
             done
-            generate "$model" "${pass_args[@]}"
+            generate "$model_generate" "${pass_args[@]}"
+            ;;
+        e|embed)
+            # Parse run-specific flags
+            pass_args=()
+            while [ "$#" -gt 0 ]; do
+                case "$1" in
+                    --model|-m)
+                        if [ -n "$2" ]; then
+                            model_embed="$2"
+                            shift 2
+                        else
+                            echo "Error: --model requires a non-empty argument."
+                            exit 1
+                        fi
+                        ;;
+                    *)
+                        pass_args+=("$1")
+                        shift
+                        ;;
+                esac
+            done
+            embed "$model_embed" "${pass_args[@]}"
             ;;
         *)
             help_message
