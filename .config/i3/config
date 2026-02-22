@@ -92,3 +92,7 @@ for_window [class="steam_app.*"] tiling enable
 # Lid switch handling
 # bindsym XF86PowerOff exec $conf_folder/scripts/lid-handling.bash close
 # bindsym XF86WakeUp exec $conf_folder/scripts/lid-handling.bash open
+
+bar {
+    status_command i3status
+}
