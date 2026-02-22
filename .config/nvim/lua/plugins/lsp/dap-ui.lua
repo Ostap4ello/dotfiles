@@ -9,7 +9,7 @@ return {
         dap.adapters.cppdbg = {
             id = "cppdbg",
             type = "executable",
-            command = "/home/ostap4ello/.local/share/nvim/mason/packages/cpptools/extension/debugAdapters/bin/OpenDebugAD7",
+            command = "~/.local/share/nvim/mason/packages/cpptools/extension/debugAdapters/bin/OpenDebugAD7",
         }
 
         dap.configurations.cpp = {

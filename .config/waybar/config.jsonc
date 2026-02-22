@@ -203,7 +203,7 @@
     }, 
 
     "image#appmenu": {
-        "path": "/home/ostap4ello/.local/share/logoAP-3.png",
+        "path": "~/.local/share/logoAP-3.png",
         "size": 25,
         "on-click": "rofi -show drun"
     },
