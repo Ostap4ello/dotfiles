@@ -8,7 +8,7 @@
 ## Environment variables
 export EDITOR='nvim'
 export VISUAL='nvim'
-export TERMINAL='alacritty'
+export TERM='xterm-256color'
 # Created by `pipx` on 2023-12-17 20:27:05
 export PATH="$PATH:/home/ostap4ello/.local/bin"
 
