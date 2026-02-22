@@ -1,0 +1,55 @@
+#
+#!/bin/bash
+#
+
+help() {
+    cat << EOF
+    $0 <default|none|tworow|help>
+
+    Controls the state of the floating keyboard in termux.
+    
+EOF
+}
+
+main() {
+
+    local setting_regex="^extra-keys = .*"
+    local config_file="$HOME/.termux/termux.properties"
+
+    local extra_keys_default="[[ESC, TAB, CTRL, ALT, {key: '-', popup: '|'}, DOWN, UP]]"
+    local extra_keys_tworow="[['ESC','/','-','HOME','UP','END','PGUP'], ['TAB','CTRL','ALT','LEFT','DOWN','RIGHT','PGDN']]"
+    local extra_keys_none="[]"
+
+    if [[ "$1" =~ ^(default|none|tworow)$ ]]; then
+	if ! grep -q "$setting_regex" "$config_file"; then
+	    echo "extra-keys = $extra_keys_default" >> "$config_file"
+	fi
+
+        local x
+	case "$1" in
+	    default)
+	        x="$extra_keys_default"
+		;;
+	    tworow)
+	        x="$xtra_keys_tworow"
+		;;
+	    none)
+	        x="$extra_keys_none"
+		;;
+	    *)
+	        ;;
+	esac
+	        
+
+        sed -i "s/$setting_regex/extra-keys = $x/" "$config_file" &&
+	termux-reload-settings || { echo "error"; exit 1; }
+    elif [[ "$1" =~ ^(help|-h|--help)$ ]]; then
+        help
+	exit 0
+    else
+        help
+	exit 1
+    fi
+}
+
+main "$@"
