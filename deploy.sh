@@ -7,6 +7,38 @@ log() {
     echo "- $*"
 }
 
+install_yay() {
+    if command -v yay &> /dev/null; then
+        log "yay is already installed"
+        return 0
+    fi
+
+    log "Installing yay (AUR helper)..."
+    local tmp_dir=$(mktemp -d)
+    log "Cloning yay to $tmp_dir"
+    git clone https://aur.archlinux.org/yay.git "$tmp_dir/yay"
+
+    if [ $? -ne 0 ]; then
+        log "Error: Failed to clone yay repository"
+        rm -rf "$tmp_dir"
+        return 1
+    fi
+
+    log "Building and installing yay..."
+    cd "$tmp_dir/yay"
+    makepkg -si --noconfirm
+    cd - > /dev/null
+    rm -rf "$tmp_dir"
+
+    if [ $? -ne 0 ]; then
+        log "Error: Failed to build/install yay"
+        return 1
+    else
+        log "yay installed successfully"
+        return 0
+    fi
+}
+
 deploy_single_target() {
     local src=$1
     local dest=$2
@@ -90,7 +122,7 @@ main() {
         exit 1;
     elif [[ "${IFS}$*${IFS}" =~ "${IFS}--help${IFS}" ]] || [[ "${IFS}$*${IFS}" =~ "${IFS}-h${IFS}" ]]; then
         echo ""
-        echo "Usage: $0 [--help|-h] [-t <target> [<target> ...]]"
+        echo "Usage: $0 [--help|-h] [--all|-a] [--yay|-y] [-t <target> [<target> ...]]"
         echo "Deploy configuration files to home directory by creating symlinks to files in this repo."
         echo "If targets exist in the home directory, they will be backed up with a .bak suffix."
         echo "When no options are provided, all configurations are deployed."
@@ -98,6 +130,7 @@ main() {
         echo "Options:"
         echo "  --help, -h        Show this help message and exit"
         echo "  --all, -a         Deploy all configuration files"
+        echo "  --yay, -y         Install yay (AUR helper) if not already installed"
         echo "  -t <target> ..., --target <target> ..."
         echo "                    Deploy only specified targets (any files or directories in the repo)"
         echo ""
@@ -108,6 +141,10 @@ main() {
     else
         while [ "$#" -gt 0 ]; do
             case "$1" in
+                -y|--yay)
+                    install_yay
+                    shift
+                    ;;
                 -t|--target)
                     shift
                     while [ "$#" -gt 0 ] && [[ ! "$1" =~ ^- ]]; do
