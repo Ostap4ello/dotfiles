@@ -61,7 +61,5 @@ else
     })
 
     -- commands to run as nvim starts
-    -- vim.cmd("colorscheme default")
     vim.cmd("colorscheme default")
 end
-vim.cmd("Copilot disable")
