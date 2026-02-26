@@ -11,7 +11,8 @@ choice="$(
 2   poweroff
 3   hibernate
 4   suspend -> hibernate
-5   lock" |
+5   lock
+6   logout" |
         rofi -dmenu \
             -p "Power Menu" \
             -format i \
@@ -33,7 +34,10 @@ case "$choice" in
     systemctl suspend-then-hibernate
     ;;
 4)
-    hyprlock
+    loginctl lock-session
+    ;;
+5)
+    hyprctl dispatch exit
     ;;
 *) ;;
 esac
