@@ -10,8 +10,10 @@
     "margin-left": -3,
     "margin-right": -3,
 
-    "modules-left": [ "custom/spacer", "image#appmenu", "custom/clock",/* "custom/separator", "custom/hints",*/ "custom/separator", "hyprland/language" ],
+    "modules-left": [ "custom/spacer", "image#appmenu", "clock",/* "custom/separator", "custom/hints",*/ "custom/separator", "hyprland/language" ],
+    // NOTE: 0.0-0.3% CPU
     "modules-center": [ "hyprland/workspaces" ],
+    // NOTE: 0.7-1.3% CPU; TODO: battery logs "Full"
     "modules-right": [ "tray", "cpu", "memory", "custom/separator" , "pulseaudio", "custom/separator", "network", "custom/separator", "battery", "custom/spacer" ],
 
     // Modules configuration
@@ -150,7 +152,7 @@
         "interval": 30,
         "format-icons": {
             "enabled": "",
-            "disabled": ""
+            "disabled": " "
         },
         "tooltip-format": "{status}"
     },
@@ -183,11 +185,11 @@
     },
 
     "custom/separator": {
-    "format":"|"
+        "format":"|"
     },
 
     "custom/spacer": {
-    "format":" "
+        "format":" "
     },
 
     "custom/hints": {
@@ -205,8 +207,11 @@
     "image#appmenu": {
         "path": "~/.local/share/logoAP-3.png",
         "size": 25,
-        "on-click": "rofi -show drun"
+        "on-click": "rofi -show drun",
+        "on-click-middle": "exec ~/.config/hypr/scripts/info.bash",
+        "interval": 8
     },
+
     "custom/clock": {
         "exec": "date +'%H:%M:%S | %a, %b %d, %Y'",
         "interval": 1,
