@@ -3,16 +3,18 @@
 
 local opts_anante = {
     provider = "copilot",
-    selection = {
-        hint_display = "none",
-    },
     behaviour = {
         auto_approve_tool_permissions = false,
-        auto_set_keymaps = false,
     },
     windows = {
         width = 50,
         edit = { start_insert = false },
+    },
+    selector = {
+        provider = "telescope",
+    },
+    file_selector = {
+        provider = "telescope",
     },
 }
 local opts_copilot_cmp = {}
