@@ -54,7 +54,7 @@ docker_action() {
         s|stop)
             docker stop "${pass_args[@]}" "$container_name"
             ;;
-        c|cmd)
+        c|command)
             docker exec -it "$container_name" /bin/ollama "${pass_args[@]}"
             ;;
         S|status)
@@ -247,27 +247,49 @@ generate() {
         # "sequence_number":18
         # }
 
+        local do_stream="$1"
+
+        echo ''
         while read -r line; do
-            [[ "$line" =~ ^([^\ ]*):\ (\{.*\})\s*$ ]] || continue # skip empty or non-parsable line line
+            if [[ "$do_stream" == "true" ]]; then
+                [[ "$line" =~ ^([^\ ]*):\ (\{.*\})\s*$ ]] || continue # skip empty or non-parsable line line
+                local json_bit=${BASH_REMATCH[2]}
+                local responce_type=$(echo "$json_bit" | jq -c '.type' | tr -d '"') || exit 1 # what if returned non-json?
 
-            json_bit=${BASH_REMATCH[2]}
-
-            responce_type=$(echo "$json_bit" | jq -c '.type' | tr -d '"') || exit 1 # what if returned non-json?
-
-            if [ "$responce_type" = "response.output_text.delta" ]; then
-                token=$(echo "$json_bit" | jq -c '.delta' | tr -d '"')
-                printf '%b' "$token"
-            elif [ "$responce_type" = "response.completed" ]; then
-                echo ''
+                if [ "$responce_type" = "response.output_text.delta" ]; then
+                    local token=$(echo "$json_bit" | jq -c '.delta' | tr -d '"')
+                    printf '%b' "$token"
+                elif [ "$responce_type" = "response.completed" ]; then
+                    echo ''
+                    echo ''
+                    log "Generation complete."
+                    echo "$json_bit" | jq '.response' | jq '.model, .usage.total_tokens, .id'
+                    exit 0
+                fi
+            else
+                local json_bit="$line"
+                local reasoning=$(echo "$json_bit" | jq '.output[] | select(.type=="reasoning") | .summary[] | select(.type=="summary_text") | .text' -r)
+                local message=$(echo "$json_bit" | jq '.output[] | select(.type=="message") | .content[] | select(.type=="output_text") | .text' -r)
+                if [ -n "$reasoning" ]; then
+                    log "Reasoning:"
+                    printf '%b\n' "$reasoning"
+                    echo ''
+                fi
+                if [ -n "$message" ]; then
+                    log "Message:"
+                    printf '%b\n' "$message"
+                    echo ''
+                fi
                 log "Generation complete."
-                echo "$json_bit" | jq '.response' | jq '.model, .usage.total_tokens, .id'
+                echo "$json_bit" | jq '.model, .usage.total_tokens, .id'
                 exit 0
             fi
         done
     }
 
     local model="$1"
-    shift
+    local do_stream="$2"
+    shift 2
 
     pass_args="$*"
 
@@ -277,18 +299,16 @@ generate() {
     base_url=$(get_base_url)
 
     if [ -n "$pass_args" ]; then
-        echo '{
-            "model": "'"$model"'",
-            "input": "'"$pass_args"'",
-        }'
         log "Generating with model '$model' at '$base_url' ..."
         curl $base_url/responses \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $OPENAI_API_KEY" \
-            -d '{
+            -s \
+        -d '{
                   "model": "'"$model"'",
-                  "input": "'"$pass_args"'"
-                }' #| { process_stream_responses; }
+                  "input": "'"$pass_args"'",
+                  "stream": '"$do_stream"'
+                }' | { process_stream_responses "$do_stream"; }
     else
         log "No input provided for generation - shuting down model '$model'."
     fi
@@ -345,12 +365,12 @@ embed() {
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $OPENAI_API_KEY" \
             -s \
-            -d '{
+        -d '{
                   "model": "'"$model"'",
                   "input": '"$pass_args"',
                   "stream": true
                 }' | jq -c '.data[] | .embedding'
-                # Pretty print embeddings, one value per line
+        # Pretty print embeddings, one value per line
     else
         log "No input provided for generation - shuting down model '$model'."
     fi
@@ -380,14 +400,17 @@ Commands:
   a | attach          Attach to the container
   b | begin           Start container
   s | stop            Stop container
+  S | status          Show the status of the container and Ollama server
 
   g | generate        Generate text using a model (default: $model). Empty
                       input stops the model.
     -m | --model <model>       specify another model to use.
+    --stream                   stream output (default)
+    --no-stream                do not stream output, print all at once when done
   e | embed            Get embeddings from a model (default: $model).
     -m | --model <model>       specify another model to use.
-  c | command         Passes all arguments after that to "ollama" CLI command inside the 
-                      container, e.g., "ollama-docker c ls" will do "ollama ls" inside the 
+  c | command         Passes all arguments after that to "ollama" CLI command inside the
+                      container, e.g., "ollama-docker c ls" will do "ollama ls" inside the
                       container.
 
 Global Options:
@@ -481,9 +504,18 @@ main() {
             ;;
         g|generate)
             # Parse run-specific flags
-            pass_args=()
+            local pass_args=()
+            local do_stream="true"
             while [ "$#" -gt 0 ]; do
                 case "$1" in
+                    --stream)
+                        do_stream="true"
+                        shift
+                        ;;
+                    --no-stream)
+                        do_stream="false"
+                        shift
+                        ;;
                     --model|-m)
                         if [ -n "$2" ]; then
                             model_generate="$2"
@@ -499,7 +531,7 @@ main() {
                         ;;
                 esac
             done
-            generate "$model_generate" "${pass_args[@]}"
+            generate "$model_generate" "$do_stream" "${pass_args[@]}"
             ;;
         e|embed)
             # Parse run-specific flags
