@@ -48,7 +48,7 @@ docker_action() {
         a|attach)
             docker exec "${pass_args[@]}" -it "$container_name" /bin/bash
             ;;
-        b|boot)
+        b|begin)
             docker start "${pass_args[@]}" "$container_name"
             ;;
         s|stop)
@@ -56,6 +56,15 @@ docker_action() {
             ;;
         c|cmd)
             docker exec -it "$container_name" /bin/ollama "${pass_args[@]}"
+            ;;
+        S|status)
+            docker ps -f name="$container_name" --format '{{.Names}}' | grep -q "$container_name" && \
+                log "Container is up." || \
+                log "Container is down."
+
+            curl -s "$(get_base_url)/models" > /dev/null && \
+                log "Ollama is up." || \
+                log "Ollama is down."
             ;;
     esac
 }
@@ -466,6 +475,8 @@ main() {
         s|stop)
             ;&
         c|command)
+            ;&
+        S|status)
             docker_action "$cmd" "$@"
             ;;
         g|generate)
