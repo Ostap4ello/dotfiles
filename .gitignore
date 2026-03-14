@@ -8,6 +8,7 @@
 .config/tmux/plugins
 .config/tmux/tpm
 .config/vim/.netrwhist
+.config/kew/library.dat
 **/*.bak
 **/.*.bak
 **/__pycache__
