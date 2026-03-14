@@ -56,6 +56,7 @@ return {
                     },
                 },
                 jdtls = {
+                    root_dir = vim.fs.root(0, { { "mvnw", "gradlew", "settings.gradle", "settings.gradle.kts"}, { "build.xml", "pom.xml", "build.gradle", "build.gradle.kts" }, ".git" }),
                     settings = {
                         java = {
                             configuration = {
@@ -77,7 +78,13 @@ return {
                             rootDirectory = nil,
                             build = {
                                 executable = "latexmk",
-                                args = { "-pdf", "-interaction=nonstopmode", "-synctex=1", "-output-directory=.build", "%f" },
+                                args = {
+                                    "-pdf",
+                                    "-interaction=nonstopmode",
+                                    "-synctex=1",
+                                    "-output-directory=.build",
+                                    "%f",
+                                },
                                 onSave = false,
                                 forwardSearchAfter = false,
                             },
@@ -263,7 +270,7 @@ return {
                     vim.api.nvim_buf_create_user_command(0, "TexlabStopPreview", stopTexlabPreview, {})
                 end,
                 group = vim.api.nvim_create_augroup("TexlabPreviewerGroup", {}),
-                desc = "Automatically build .tex with texlab on save."
+                desc = "Automatically build .tex with texlab on save.",
             })
         end,
     },
