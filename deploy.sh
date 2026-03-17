@@ -55,6 +55,18 @@ deploy_single_target() {
         dest="${dest:0:-1}"
     fi
 
+    # Dependencies
+    case "$dest" in
+        $HOME/.local/bin/hyprland)
+            log "Deploying keyboard layout - 'custom' for Hyprland"
+            set -x
+            sudo cp xkb/custom /usr/share/X11/xkb/symbols/.
+            set +x
+            ;;
+        *)
+            ;;
+    esac
+
     log "Deploying $src to $dest"
     if [ -L "$dest" ]; then
         log "Removing existing symlink $dest"
