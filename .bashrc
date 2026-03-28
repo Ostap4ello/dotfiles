@@ -31,6 +31,7 @@ alias btcli='bluetoothctl'
 alias btdefault='bluetoothctl connect 2C:FD:B3:4B:02:B4; bluetoothctl connect 00:9E:C8:F7:70:31'
 alias nightmode='hyprshade toggle blue-light-filter'
 alias fire="kitty --title \"Fireplace\" -o font_size=6 sh -c \"fireplace -f 65 -t 15\" & disown"
+alias onvim="nvim +ter +Opencode +'wincmd ='"
 
 #functions
 wl-img-saveto(){
