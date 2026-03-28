@@ -19,3 +19,6 @@
 # First row is for the directory itself, 
 # second row is for the files inside the directory,
 # including subdirectories.
+
+# Internal docs
+AGENTS.md
