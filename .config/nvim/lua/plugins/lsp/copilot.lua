@@ -1,10 +1,18 @@
 -- Lazily load copilot and avante when the user runs :CopilotSetup
 -- NOTE: This is a workaround to avoid loading copilot and avante on startup, as this sw uses a lot of resources.
 
+-- https://github.com/yetone/avante.nvim/blob/main/lua/avante/config.lua
 local opts_anante = {
     provider = "copilot",
+    providers = {
+        copilot = {
+            model = "gpt-5.3-codex",
+        },
+    },
     behaviour = {
+        auto_add_current_file = false,
         auto_approve_tool_permissions = false,
+        use_cwd_as_project_root = true,
     },
     windows = {
         width = 50,
@@ -16,14 +24,24 @@ local opts_anante = {
     file_selector = {
         provider = "telescope",
     },
+    disabled_tools = { "ls" },
 }
 local opts_copilot_cmp = {}
 
 vim.api.nvim_create_user_command("CopilotSetup", function()
-    require("avante").setup(opts_anante)
     require("copilot_cmp").setup(opts_copilot_cmp)
     -- TODO: find a better way to trigger copilot.vim setup
     vim.print("NOTE: (fix pending) Open a new file or run `:e` to activate Copilot inline suggestions")
+
+    require("avante").setup(opts_anante)
+    vim.api.nvim_create_user_command("AvanteZen", function()
+        vim.cmd("tabnew")
+        require("avante.api").zen_mode()
+        vim.cmd("file AvanteZen")
+        -- TODO: find a better way to close that empty buffer
+        -- vim.cmd("wincmd h") -- move to the left window (avante)
+        -- vim.cmd("wincmd q") -- close the right window (empty buffer)
+    end, { desc = "Enable Avante Zen mode" })
 end, { desc = "Setup Copilot and Avante" })
 
 return {
@@ -58,15 +76,11 @@ return {
             vim.api.nvim_set_keymap("n", "<leader>ah", "<cmd>AvanteHistory<CR>", { desc = "Avante History" })
             vim.api.nvim_set_keymap("n", "<leader>am", "<cmd>AvanteModels<CR>", { desc = "Select Avante Model" })
             vim.api.nvim_set_keymap("n", "<leader>an", "<cmd>AvanteChatNew<CR>", { desc = "New Avante Chat" })
-            vim.api.nvim_set_keymap(
-                "n",
-                "<leader>ap",
-                "<cmd>AvanteSwitchProvider<CR>",
-                { desc = "Switch Avante Provider" }
-            )
+            vim.api.nvim_set_keymap( "n", "<leader>ap", "<cmd>AvanteSwitchProvider<CR>", { desc = "Switch Avante Provider" })
             vim.api.nvim_set_keymap("n", "<leader>ar", "<cmd>AvanteRefresh<CR>", { desc = "Refresh Avante" })
             vim.api.nvim_set_keymap("n", "<leader>as", "<cmd>AvanteStop<CR>", { desc = "Stop Avante" })
             vim.api.nvim_set_keymap("n", "<leader>at", "<cmd>AvanteToggle<CR>", { desc = "Toggle Avante" })
+            vim.api.nvim_set_keymap( "n", "<leader>az", "<cmd>AvanteZen<CR>", { desc = "Open Avante Zen mode" })
         end,
     },
 }
