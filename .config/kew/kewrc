@@ -177,6 +177,7 @@ bind = Unknown, EVENT_NONE
 
 bind = q, showPlaylist
 bind = /, showSearch
+bind = ?, showHelp
 bind = Esc, showTrack
 bind = Shift+q, quit
 
@@ -188,8 +189,8 @@ bind = n, nextSong
 #bind = j, scrollDown
 bind = h, seekBack
 bind = l, seekForward
-bind = Shift+l, prevSong
-bind = Shift+h, nextSong
+bind = Shift+h, prevSong
+bind = Shift+l, nextSong
 bind = Shift+j, volDown
 bind = Shift+k, volUp
 
