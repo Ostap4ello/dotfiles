@@ -120,6 +120,13 @@ return {
                 -- NOTE: see https://pandoc.org/MANUAL.html#variables-for-latex
                 local headers = {
                     "---",
+                    "title: Foo Bar",
+                    "author: John Doe",
+                    "date: 30.04.2025",
+                    'mainfont: "Noto Serif"',
+                    'monofont: "Noto Serif"',
+                    "fontsize: 10pt",
+                    'geometry: "a4paper, left=2cm, right=2cm, top=2cm, bottom=2cm"',
                     "pandoc_:",
                     " - output: .pdf",
                     " - template: codedoc.tex",
@@ -128,6 +135,8 @@ return {
                     "  pdf_document:",
                     "    latex_engine: xelatex",
                     "    fig_caption: true",
+                    "header-includes:",
+                    "  - \\usepackage{amsmath}",
                     "---",
                 }
                 vim.api.nvim_buf_set_lines(0, 0, 1, false, headers)
