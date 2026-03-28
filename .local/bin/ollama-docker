@@ -31,6 +31,7 @@ docker_action() {
     shift
     pass_args=("$@")
 
+    # set -x
     case "$cmd" in
         r|run)
             docker run -d \
@@ -67,6 +68,7 @@ docker_action() {
                 log "Ollama is down."
             ;;
     esac
+    # set +x
 }
 
 generate() {
