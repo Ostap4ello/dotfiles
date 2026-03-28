@@ -57,11 +57,18 @@ vim.opt.formatoptions = "tcroqlj" --<- TODO:
 -- Wrap for different filetypes
 vim.opt.wrap = false
 vim.opt.linebreak = false
-vim.g.textwidth = 100
+vim.opt.textwidth = 80
 
 -- Vim window width
-vim.g.winminwidth = 6
-vim.g.winminheight = 6
+vim.opt.winwidth = 6
+vim.opt.winheight = 6
+vim.opt.winminwidth = 6
+vim.opt.winminheight = 6
+
+-- Vim code folding
+vim.opt.foldmethod = "indent"
+vim.api.nvim_create_autocmd("FileType", { pattern = "TelescopeResults", command = [[setlocal nofoldenable]] })
+vim.api.nvim_create_autocmd("FileType", { pattern = "neo-tree", command = [[setlocal nofoldenable]] })
 
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
     pattern = "*.gay",
