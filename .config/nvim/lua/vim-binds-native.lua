@@ -37,7 +37,6 @@ end, {})
 -- 	vim.cmd("vertical new")
 -- end, {})
 
-
 vim.api.nvim_create_user_command("QuoteFile", function()
     -- Get the start and end positions of the visual selection
     local start_pos = vim.fn.getpos("'<")[2]
@@ -54,33 +53,43 @@ vim.api.nvim_create_user_command("QuoteFile", function()
     --
     local quote
     if start_pos == end_pos then
-        quote = string.format(
-            [[
-```%s at %s
-%s
-```
-          ]],
-            filename,
-            start_pos,
-            lines
-        )
+        quote = "```" .. filename .. " at " .. start_pos .. "\n" .. lines .. "\n" .. "```"
     else
-        quote = string.format(
-            [[
-```%s at %s~%s
-%s
-```
-          ]],
-            filename,
-            start_pos,
-            end_pos,
-            lines
-        )
+        quote = "```" .. filename .. " at " .. start_pos .. "~" .. end_pos .. "\n" .. lines .. "\n" .. "```"
     end
 
     vim.fn.setreg("+", quote, "V")
     vim.fn.setreg('"', quote, "V")
 end, { range = true, desc = "Creates .md styled selected area reference of selected code" })
+
+vim.api.nvim_create_user_command("QuotePosition", function()
+    -- Get the start and end positions of the visual selection
+    local start_pos = vim.fn.getpos("'<")[2]
+    local end_pos = vim.fn.getpos("'>")[2]
+
+    local filename = vim.fn.expand("%:.")
+
+    -- exceptions
+    if string.find(filename, ".h$") then
+        string.gsub(filename, ".h$", ".cpp")
+    end
+
+    local quote
+    if start_pos == end_pos then
+        quote = "file: " .. filename .. " at " .. start_pos
+    else
+        quote = "file:" .. filename .. " at " .. start_pos .. "~" .. end_pos
+    end
+
+    vim.fn.setreg("+", quote, "V")
+    vim.fn.setreg('"', quote, "V")
+end, { range = true, desc = "Creates .md styled selected area reference of selected code" })
+vim.keymap.set({ "v" }, "<leader>q", function()
+    vim.cmd("QuotePosition")
+end, { desc = "Copy file and position of selected code to clipboard" })
+vim.keymap.set({ "v" }, "<leader>Q", function()
+    vim.cmd("QuoteFile")
+end, { desc = "Copy file and content of selected code to clipboard" })
 
 --vim.keymap.set('i', '<C-Tab>', '<Plug>(copilot-accept-word)')
 vim.keymap.set("t", "<c-w>", "<c-\\><c-n><c-w>")
