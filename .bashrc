@@ -159,4 +159,7 @@ if ! shopt -oq posix; then
         . /etc/bash_completion
     fi
 fi
+
 export PATH="$HOME/.npm-global/bin:$PATH"
+
+[ ! -e "$TERUX_VERSION" ] && alias tres="~/.local/bin/termux-set-floating-keys default"
