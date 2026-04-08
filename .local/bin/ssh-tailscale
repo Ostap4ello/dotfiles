@@ -1,0 +1,4 @@
+#!/bin/bash
+
+ssh -i ~/.ssh/pinggy -p3000 ostap4ello@o4book
+
