@@ -69,6 +69,7 @@ return {
                         },
                     },
                 },
+                -- ltex_plus = {},
                 texlab = {
                     -- cmd = { "texlab" },
                     -- filetypes = { "tex", "plaintex", "bib" },

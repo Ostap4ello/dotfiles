@@ -8,6 +8,9 @@ return {
         local settings = {
             defaults = {
                 layout_strategy = "vertical",
+                preview = {
+                    treesitter = false,
+                },
                 -- file_ignore_patterns = { "build/.*", "bin/.*" },
             },
         }

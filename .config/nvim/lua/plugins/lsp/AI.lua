@@ -42,16 +42,12 @@ local function load_avante()
     end, { desc = "Enable Avante Zen mode" })
 end
 
-local function load_copilot_chat()
+local function load_copilot_cli()
     if vim.fn.executable('copilot') == 1 then
-        vim.api.nvim_create_user_command("CopilotChat", function()
-            vim.cmd("tabnew | tabmove $ | file CopilotChat | terminal copilot ")
-            -- Wait for first keypress (y/n) without Enter
-            vim.cmd([[call feedkeys(nr2char(getchar()), 't')]])
-        end, { desc = "Open Copilot in rightmost tab" })
-        local confirm = vim.fn.input('Create CopilotChat command? (y/n): ')
+        local confirm = vim.fn.input('Create CopilotCLI terminal window? (y/n) ')
         if confirm:lower() == 'y' then
-            vim.cmd("CopilotChat")
+            vim.cmd("tabnew | tabmove $ | file CopilotCLI")
+            vim.cmd("terminal copilot --resume")
         end
     end
 end
@@ -60,7 +56,7 @@ local function load_opencode()
     require("opencode").start()
 end
 
-local ai_tools = { "copilot", "avante", "copilot_chat", "opencode" }
+local ai_tools = { "copilot", "avante", "copilot_cli", "opencode" }
 
 vim.api.nvim_create_user_command("AISetup", function(opts)
     local arg = opts.fargs[1]
@@ -68,17 +64,17 @@ vim.api.nvim_create_user_command("AISetup", function(opts)
         load_copilot()
     elseif arg == "avante" then
         load_avante()
-    elseif arg == "copilot_chat" then
-        load_copilot_chat()
+    elseif arg == "copilot_cli" then
+        load_copilot_cli()
     elseif arg == "opencode" then
         load_opencode()
     else
         load_copilot()
         load_avante()
-        load_copilot_chat()
+        load_copilot_cli()
     end
 end, {
-    desc = "Setup AI tools. Usage: :AISetup [copilot|avante|copilot_chat|opencode]. No arg = all but opencode.",
+    desc = "Setup AI tools. Usage: :AISetup [copilot|avante|copilot_cli|opencode]. No arg = all but opencode.",
     nargs = "?",
     complete = function(ArgLead, CmdLine, CursorPos)
         local matches = {}

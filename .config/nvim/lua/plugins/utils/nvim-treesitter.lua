@@ -12,7 +12,7 @@ return {
             -- "HiPhish/nvim-ts-rainbow2",
         },
         config = function()
-            local config = require("nvim-treesitter.configs")
+            local config = require("nvim-treesitter.config")
             config.setup({
                 ensure_installed = { "c", "lua", "vim", "vimdoc", "bash", "python", "java" },
                 sync_install = false,
