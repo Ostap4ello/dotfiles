@@ -5,7 +5,7 @@
 #
 
 mon_config="${HOME}/.config/hypr/monitors.conf"
-pers_config="${HOME}/.config/hypr/monitors-persistent.conf"
+pers_config="${HOME}/.hypr-monitors"
 
 marker_section_custom="### Custom monitors configuration (can be edited by user)"
 marker_section_persistent="### Persistent/actual monitors configuration (auto-generated, do not edit)"
