@@ -148,7 +148,7 @@ main() {
         echo "Options:"
         echo "  --help, -h        Show this help message and exit"
         echo "  --all, -a         Deploy all configuration files"
-        echo "  --yay, -y         Install yay (AUR helper) if not already installed"
+        echo "  --yay             Install yay (AUR helper) if not already installed"
         echo "  --dms             Install dms (DANK LINUX)"
         echo "  -t <target> ..., --target <target> ..."
         echo "                    Deploy only specified targets (any files or directories in the repo)"
@@ -160,7 +160,7 @@ main() {
     else
         while [ "$#" -gt 0 ]; do
             case "$1" in
-                -y|--yay)
+                --yay)
                     install_yay
                     shift
                     ;;
