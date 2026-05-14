@@ -126,3 +126,7 @@ vim.keymap.set({ "n", "v" }, "<leader><C-up>", ":resize +10<CR>")
 -- vim.keymap.set("t", "<leader><C-left>", "<c-\\><c-n><c-w><left> :vertical resize -16<CR>")
 -- vim.keymap.set("t", "<leader><C-right>", "<c-\\><c-n><c-w><right> :vertical resize +16<CR>")
 -- vim.keymap.set("t", "<leader><C-up>", "<c-\\><c-n><c-w><up> :resize +10<CR>")
+
+-- Navigate through softwrapped rows
+vim.keymap.set('n', 'j', 'gj', { noremap = true })
+vim.keymap.set('n', 'k', 'gk', { noremap = true })

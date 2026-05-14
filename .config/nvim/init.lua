@@ -62,5 +62,5 @@ else
 
     -- commands to run as nvim starts
     vim.cmd("set termguicolors")
-    vim.cmd("colorscheme lunaperche")
+    vim.cmd("colorscheme wildcharm")
 end

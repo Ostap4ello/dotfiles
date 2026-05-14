@@ -41,6 +41,7 @@ return {
             json = { "prettier" },
             js = { "prettier" },
             ts = { "prettier" },
+            tsx = { "prettier" },
         },
         formatters = {
             stylua_custom = {
