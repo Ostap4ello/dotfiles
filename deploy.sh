@@ -39,6 +39,12 @@ install_yay() {
     fi
 }
 
+install_dms() {
+    set -x
+    curl -fsSL https://install.danklinux.com | sh
+    set +x
+}
+
 deploy_single_target() {
     local src=$1
     local dest=$2
@@ -143,6 +149,7 @@ main() {
         echo "  --help, -h        Show this help message and exit"
         echo "  --all, -a         Deploy all configuration files"
         echo "  --yay, -y         Install yay (AUR helper) if not already installed"
+        echo "  --dms             Install dms (DANK LINUX)"
         echo "  -t <target> ..., --target <target> ..."
         echo "                    Deploy only specified targets (any files or directories in the repo)"
         echo ""
@@ -169,6 +176,10 @@ main() {
                         fi
                         shift
                     done
+                    ;;
+                 --dms)
+                    install_dms
+                    shift
                     ;;
                 *)
                     log "Unknown option: $1"
