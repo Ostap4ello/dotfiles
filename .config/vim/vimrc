@@ -1,5 +1,8 @@
 set clipboard=unnamed,unnamedplus
 
+nnoremap j gj
+nnoremap k gk
+
 " Copy with Wayland
 " xnoremap <silent> y :w !wl-copy<CR><CR>
 " Paste from Wayland
