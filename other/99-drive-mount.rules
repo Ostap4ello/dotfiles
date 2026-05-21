@@ -1,0 +1,2 @@
+SUBSYSTEM=="block", ENV{ID_FS_UUID}=="3c61f456-4530-46c2-89e5-649ada0704ad", ENV{UDISKS_FILESYSTEM_SHARED}="1"
+SUBSYSTEM=="block", ACTION=="remove", ENV{ID_FS_LABEL}=="ExtLinuxFS", RUN+="/usr/bin/systemd-run --no-block /usr/bin/umount -l /media/ExtLinuxFS"

@@ -3,49 +3,71 @@
 # A script to deploy configs
 #
 
+help() { echo <<EOF
+
+Usage: $0 [<option> ...] [<command>]
+Deploy configuration files to \$HOME by creating symlinks to files in this repo.
+If targets exist in \$HOME, they will be backed up with a .bak suffix.
+
+Commands:
+  t <target> ..., target <target> ...
+                    Deploy only specified targets (creates symlinks for each target)
+  a, all         Deploy all available configuration files
+
+Options:
+  --help, -h        Show this help message and exit
+  --notes           Show other notes
+(specialized)
+  --tmux-pm         Install tmux plugin manager (tpm) if not already installed
+  --yay             Install yay (AUR helper) if not already installed
+  --dms             Install dms (DANK LINUX)
+  --cli             Install essential CLI tools:
+                       ${cli_list[*]}
+  --de              Install essential desktop applications:
+                       ${de_list[*]}
+  --nvime            Install neovim + utils needed for this repo's config:
+                       ${nvim_list[*]}
+  --flatpak         Install Flatpak + user-level
+
+EOF
+}
+
+cli_list=(
+    "git"
+    "tmux"
+    "fzf"
+    "ripgrep"
+    "fd"
+    "vi"
+    "vim"
+    "ranger"
+    "lazygit"
+)
+
+de_list=(
+    "firefox"
+    "chromium"
+    "brightnessctl"
+    "kitty"
+    "zathura"
+    "zathura-pdf-mupdf"
+)
+
+nvim_list=(
+    "neovim"
+    "yarn"
+    "npm"
+    "fd"
+    "fzf"
+    "ripgrep"
+    "plantuml"
+)
+
 log() {
     echo "- $*"
 }
 
-install_yay() {
-    if command -v yay &> /dev/null; then
-        log "yay is already installed"
-        return 0
-    fi
-
-    log "Installing yay (AUR helper)..."
-    local tmp_dir=$(mktemp -d)
-    log "Cloning yay to $tmp_dir"
-    git clone https://aur.archlinux.org/yay.git "$tmp_dir/yay"
-
-    if [ $? -ne 0 ]; then
-        log "Error: Failed to clone yay repository"
-        rm -rf "$tmp_dir"
-        return 1
-    fi
-
-    log "Building and installing yay..."
-    cd "$tmp_dir/yay"
-    makepkg -si --noconfirm
-    cd - > /dev/null
-    rm -rf "$tmp_dir"
-
-    if [ $? -ne 0 ]; then
-        log "Error: Failed to build/install yay"
-        return 1
-    else
-        log "yay installed successfully"
-        return 0
-    fi
-}
-
-install_dms() {
-    set -x
-    curl -fsSL https://install.danklinux.com | sh
-    set +x
-}
-
-deploy_single_target() {
+deploy_target() {
     local src=$1
     local dest=$2
 
@@ -98,32 +120,46 @@ deploy_single_target() {
     ln -s "$(realpath "$src")" "$dest"
 }
 
-deploy_all() {
+install_from_list() {
+    local list=("$@")
+    for pkg in "${list[@]}"; do
+        if ! command -v "$pkg" &> /dev/null; then
+            set -x
+            sudo pacman -S --noconfirm "$pkg"
+            set +x
+        else
+            log "$pkg is already installed"
+        fi
+    done
+}
 
+# Specialized functions
+
+deploy_all() {
     log "Deploying all configuration files"
 
     # .config/*
     for src in .config/*; do
         dest="$HOME/.config/$(basename "$src")"
-        deploy_single_target "$src" "$dest"
+        deploy_target "$src" "$dest"
     done
 
     # .local/share/*
     for src in .local/share/*; do
         dest="$HOME/.local/share/$(basename "$src")"
-        deploy_single_target "$src" "$dest"
+        deploy_target "$src" "$dest"
     done
 
     # .local/bin/*
     for src in .local/bin/*; do
         dest="$HOME/.local/bin/$(basename "$src")"
-        deploy_single_target "$src" "$dest"
+        deploy_target "$src" "$dest"
     done
 
     # .bash*
     for src in .bash*; do
         dest="$HOME/$(basename "$src")"
-        deploy_single_target "$src" "$dest"
+        deploy_target "$src" "$dest"
     done
 
     # .tmux clone tpm
@@ -134,59 +170,143 @@ deploy_all() {
     fi
 }
 
+install_yay() {
+    if command -v yay &> /dev/null; then
+        log "yay is already installed"
+        return 0
+    fi
+
+    log "Installing yay (AUR helper)..."
+    local tmp_dir=$(mktemp -d)
+    log "Cloning yay to $tmp_dir"
+    git clone https://aur.archlinux.org/yay.git "$tmp_dir/yay"
+
+    if [ $? -ne 0 ]; then
+        log "Error: Failed to clone yay repository"
+        rm -rf "$tmp_dir"
+        return 1
+    fi
+
+    log "Building and installing yay..."
+    cd "$tmp_dir/yay"
+    makepkg -si --noconfirm
+    cd - > /dev/null
+    rm -rf "$tmp_dir"
+
+    if [ $? -ne 0 ]; then
+        log "Error: Failed to build/install yay"
+        return 1
+    else
+        log "yay installed successfully"
+        return 0
+    fi
+}
+
+install_dms() {
+    set -x
+    curl -fsSL https://install.danklinux.com | sh
+    set +x
+}
+
+install_cli() {
+    log "Installing essential CLI tools..."
+    install_from_list "${cli_list[@]}"
+}
+
+install_de() {
+    log "Installing essential desktop applications..."
+    install_from_list "${de_list[@]}"
+}
+
+install_flatpak() {
+    if ! command -v flatpak &> /dev/null; then
+        set -x
+        sudo pacman -S --noconfirm flatpak
+        set +x
+    else
+        log "Flatpak is already installed"
+    fi
+
+    if [ ! -d "$HOME/.local/share/flatpak" ]; then
+        set -x
+        flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+        set +x
+    else
+        log "User-level Flatpak is already set up"
+    fi
+}
+
+install_nvime() {
+    log "Installing neovim and related utilities..."
+    install_from_list "${nvim_list[@]}"
+}
+
+notes() {
+    $EDITOR ./other/notes.md
+}
+
 main() {
     if [ "$#" -eq 0 ]; then
         echo "No arguments provided. Use --help or -h for usage information."
         exit 1;
     elif [[ "${IFS}$*${IFS}" =~ "${IFS}--help${IFS}" ]] || [[ "${IFS}$*${IFS}" =~ "${IFS}-h${IFS}" ]]; then
-        echo ""
-        echo "Usage: $0 [--help|-h] [--all|-a] [--yay|-y] [-t <target> [<target> ...]]"
-        echo "Deploy configuration files to home directory by creating symlinks to files in this repo."
-        echo "If targets exist in the home directory, they will be backed up with a .bak suffix."
-        echo "When no options are provided, all configurations are deployed."
-        echo ""
-        echo "Options:"
-        echo "  --help, -h        Show this help message and exit"
-        echo "  --all, -a         Deploy all configuration files"
-        echo "  --yay             Install yay (AUR helper) if not already installed"
-        echo "  --dms             Install dms (DANK LINUX)"
-        echo "  -t <target> ..., --target <target> ..."
-        echo "                    Deploy only specified targets (any files or directories in the repo)"
-        echo ""
-        echo "NOTE: uses \$HOME as the base directory for deployment."
-        echo ""
-    elif [[ "${IFS}$*${IFS}" =~ "${IFS}--all${IFS}" ]] || [[ "${IFS}$*${IFS}" =~ "${IFS}-a${IFS}" ]]; then
+        help
+        exit 0
+    fi
+
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            --yay)
+                install_yay
+                shift
+                ;;
+            --dms)
+                install_dms
+                shift
+                ;;
+            --cli)
+                install_cli
+                shift
+                ;;
+            --de)
+                install_de
+                shift
+                ;;
+            --flatpak)
+                install_flatpak
+                shift
+                ;;
+            --nvime)
+                install_nvime
+                shift
+                ;;
+            t|target|a|all)
+                break
+                ;;
+            *)
+                log "Unknown option: $1"
+                exit 1
+                ;;
+        esac
+    done
+
+    if [[ "$1" == "a" || "$1" == "all" ]]; then
         deploy_all
-    else
+    elif [[ "$1" == "t" || "$1" == "target" ]]; then
+        shift
         while [ "$#" -gt 0 ]; do
-            case "$1" in
-                --yay)
-                    install_yay
-                    shift
-                    ;;
-                -t|--target)
-                    shift
-                    while [ "$#" -gt 0 ] && [[ ! "$1" =~ ^- ]]; do
-                        target="$1"
-                        if [ -e "$target" ]; then
-                            dest="$HOME/$target"
-                            deploy_single_target "$target" "$dest"
-                        else
-                            log "Warning: Target $target does not exist."
-                        fi
-                        shift
-                    done
-                    ;;
-                 --dms)
-                    install_dms
-                    shift
-                    ;;
-                *)
-                    log "Unknown option: $1"
-                    exit 1
-                    ;;
-            esac
+            src="$1"
+            if [ -e "$src" ]; then
+                dest="$HOME/$src"
+                deploy_target "$src" "$dest"
+            else
+                log "Warning: Target $src does not exist."
+            fi
+            shift
         done
+    else
+        log "Unknown command: $1"
+        exit 1
     fi
 
     exit 0
