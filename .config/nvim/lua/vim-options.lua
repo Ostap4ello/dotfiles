@@ -100,4 +100,5 @@ vim.api.nvim_create_autocmd("FileType", {
 -- })
 
 -- vim.o.cmdheight = 0
-vim.o.termguicolors = false
+vim.opt.termguicolors = true
+vim.cmd("colorscheme wildcharm")

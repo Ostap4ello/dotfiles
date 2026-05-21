@@ -50,6 +50,10 @@ elseif vim.g.neovide then
 else
     -- ordinary Neovim
 
+    -- commands to run as nvim starts
+    vim.cmd("set termguicolors")
+    vim.cmd("colorscheme wildcharm")
+
     -- import configs
     require("lazy").setup({
         spec = {
@@ -60,7 +64,4 @@ else
         },
     })
 
-    -- commands to run as nvim starts
-    vim.cmd("set termguicolors")
-    vim.cmd("colorscheme wildcharm")
 end
