@@ -3,7 +3,7 @@
 # A script to deploy configs
 #
 
-help() { echo <<EOF
+help() { cat  <<EOF
 
 Usage: $0 [<option> ...] [<command>]
 Deploy configuration files to \$HOME by creating symlinks to files in this repo.
