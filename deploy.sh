@@ -242,7 +242,11 @@ install_nvime() {
 }
 
 notes() {
-    $EDITOR ./other/notes.md
+    if [[ $EDITOR =~ ^(nvim|vim)$ ]]; then
+        $EDITOR ./other/notes.md +"horizontal terminal cd ./other && bash"
+    else
+        $EDITOR ./other/notes.md
+    fi
 }
 
 main() {
@@ -278,6 +282,10 @@ main() {
                 ;;
             --nvime)
                 install_nvime
+                shift
+                ;;
+            --notes)
+		notes
                 shift
                 ;;
             t|target|a|all)
