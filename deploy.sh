@@ -25,6 +25,8 @@ Options:
                        ${cli_list[*]}
   --de              Install essential desktop applications:
                        ${de_list[*]}
+  --de-utils        Install desktop utils:
+                       ${deutils_list[*]}
   --nvime            Install neovim + utils needed for this repo's config:
                        ${nvim_list[*]}
   --flatpak         Install Flatpak + user-level
@@ -42,6 +44,7 @@ cli_list=(
     "vim"
     "ranger"
     "lazygit"
+    "tree"
 )
 
 de_list=(
@@ -61,6 +64,13 @@ nvim_list=(
     "fzf"
     "ripgrep"
     "plantuml"
+)
+
+deutils_list=(
+    "rofi"
+    "grim"
+    "slurp"
+    "swappy"
 )
 
 log() {
@@ -218,6 +228,11 @@ install_de() {
     install_from_list "${de_list[@]}"
 }
 
+install_deutils() {
+    log "Installing essential desktop applications..."
+    install_from_list "${deutils_list[@]}"
+}
+
 install_flatpak() {
     if ! command -v flatpak &> /dev/null; then
         set -x
@@ -276,6 +291,10 @@ main() {
                 install_de
                 shift
                 ;;
+            --de-utils)
+                install_deutils
+                shift
+                ;;
             --flatpak)
                 install_flatpak
                 shift
@@ -285,7 +304,7 @@ main() {
                 shift
                 ;;
             --notes)
-		notes
+                notes
                 shift
                 ;;
             t|target|a|all)
