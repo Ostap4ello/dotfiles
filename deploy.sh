@@ -312,10 +312,12 @@ main() {
             fi
             shift
         done
-    else
+    elif [[ "$1" != "" ]]; then
         log "Unknown command: $1"
         exit 1
     fi
+
+    log "Done."
 
     exit 0
 }
