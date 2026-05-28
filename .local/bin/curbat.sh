@@ -6,6 +6,9 @@
 
 bat="/sys/class/power_supply/BAT0"
 
+if [[ $1 == "-a" ]]; then
+	printf "%sW" "$(echo "scale=2; $(cat $bat/current_now) * $(cat $bat/voltage_now)  / 10^12" | bc -l)"
+else
 while true; do
 	printf " "
 	printf "Status: %s; " "$(cat $bat/status)"
@@ -13,3 +16,4 @@ while true; do
 	printf "\r"
   	sleep 0.5s;
 done;
+fi
