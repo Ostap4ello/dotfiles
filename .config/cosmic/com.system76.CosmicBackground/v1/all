@@ -1,8 +1,8 @@
 (
     output: "all",
-    source: Path("/usr/share/backgrounds/cosmic/otherworldly_earth_nasa_ISS064-E-29444.jpg"),
-    filter_by_theme: true,
-    rotation_frequency: 7200,
+    source: Color(Single((0.0, 0.0, 0.0))),
+    filter_by_theme: false,
+    rotation_frequency: 900,
     filter_method: Lanczos,
     scaling_mode: Zoom,
     sampling_method: Alphanumeric,
