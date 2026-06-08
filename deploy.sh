@@ -30,6 +30,8 @@ Options:
   --nvime            Install neovim + utils needed for this repo's config:
                        ${nvim_list[*]}
   --flatpak         Install Flatpak + user-level
+  --powertop        Setups \`powertop --autotune\` as a systemd service
+                      (powertop.service)
 
 EOF
 }
@@ -256,6 +258,28 @@ install_nvime() {
     install_from_list "${nvim_list[@]}"
 }
 
+setup_powertop() {
+    set -x
+    sudo pacman -S powertop
+
+    cat << EOF | sudo tee /etc/systemd/system/powertop.service
+    [Unit]
+    Description=PowerTOP auto tune
+
+    [Service]
+    Type=oneshot
+    Environment="TERM=dumb"
+    RemainAfterExit=true
+    ExecStart=/usr/sbin/powertop --auto-tune
+
+    [Install]
+    WantedBy=multi-user.target
+EOF
+
+    sudo systemctl enable --now powertop.service
+    set +x
+}
+
 notes() {
     if [[ $EDITOR =~ ^(nvim|vim)$ ]]; then
         $EDITOR ./other/notes.md +"horizontal terminal cd ./other && bash"
@@ -301,6 +325,10 @@ main() {
                 ;;
             --nvime)
                 install_nvime
+                shift
+                ;;
+            --powertop)
+                setup_powertop
                 shift
                 ;;
             --notes)
