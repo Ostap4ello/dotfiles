@@ -69,6 +69,7 @@ vim.opt.winminheight = 6
 vim.opt.foldmethod = "indent"
 vim.api.nvim_create_autocmd("FileType", { pattern = "TelescopeResults", command = [[setlocal nofoldenable]] })
 vim.api.nvim_create_autocmd("FileType", { pattern = "neo-tree", command = [[setlocal nofoldenable]] })
+vim.api.nvim_create_autocmd("FileType", { pattern = "diff", command = [[setlocal nofoldenable]] })
 
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
     pattern = "*.gay",
