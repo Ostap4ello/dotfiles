@@ -3,5 +3,18 @@
         modifiers: [
             Super,
         ],
+        key: "Tab",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
     ): System(Launcher),
+    (
+        modifiers: [
+            Super,
+            Shift,
+        ],
+        key: "Tab",
+    ): Disable,
 }

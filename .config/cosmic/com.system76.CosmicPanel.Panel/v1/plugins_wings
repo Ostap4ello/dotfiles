@@ -5,8 +5,9 @@ Some(([
     "com.system76.CosmicAppletMinimize",
     "io.github.cosmic_utils.cosmic-ext-applet-clipboard-manager",
     "io.github.cosmic_utils.cosmic-ext-applet-external-monitor-brightness",
-    "dev.cappsy.CosmicExtAppletDrives",
+    "io.github.k33wee.clippy-land",
 ], [
+    "io.github.AceMythos.cosmic-ext-applet-power-monitor",
     "com.system76.CosmicAppletInputSources",
     "com.system76.CosmicAppletStatusArea",
     "com.system76.CosmicAppletA11y",

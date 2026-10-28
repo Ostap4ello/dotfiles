@@ -1,0 +1,9 @@
+(
+    output: "eDP-1",
+    source: Path("/usr/share/backgrounds/cosmic/phytoplankton_bloom_nasa_oli2_20240121.jpg"),
+    filter_by_theme: false,
+    rotation_frequency: 7200,
+    filter_method: Lanczos,
+    scaling_mode: Zoom,
+    sampling_method: Alphanumeric,
+)
