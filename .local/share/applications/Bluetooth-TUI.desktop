@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Bluetooth-TUI
+Exec=kitty --title Bluetooth-TUI_floating bluetuith
+Terminal=false
+Categories=Settings;HardwareSettings;Utility;

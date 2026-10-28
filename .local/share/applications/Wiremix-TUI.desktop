@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Wiremix-TUI
+Exec=kitty --title Wiremix-TUI_floating wiremix
+Terminal=false
+Categories=AudioVideo;Audio;Utility;

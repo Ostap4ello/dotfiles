@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Wifi-TUI
+Exec=kitty --title Wifi-TUI_floating nmtui
+Terminal=false
+Categories=Network;Utility;

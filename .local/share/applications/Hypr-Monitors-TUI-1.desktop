@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Hypr-Monitors-TUI-1
+Exec=kitty --title Hypr-Monitors-TUI-1_floating hyprmon
+Terminal=false
+Categories=Settings;HardwareSettings;Utility;
