@@ -25,8 +25,8 @@ Options:
                        ${cli_list[*]}
   --de              Install essential desktop applications:
                        ${de_list[*]}
-  --de-utils        Install desktop utils:
-                       ${deutils_list[*]}
+  --de-utils        Install desktop utils (wayland):
+                       ${deutils_w_list[*]}
   --nvime            Install neovim + utils needed for this repo's config:
                        ${nvim_list[*]}
   --flatpak         Install Flatpak + user-level
@@ -68,11 +68,12 @@ nvim_list=(
     "plantuml"
 )
 
-deutils_list=(
+deutils_w_list=(
     "rofi"
     "grim"
     "slurp"
     "swappy"
+    "snixembed"
 )
 
 log() {
@@ -232,7 +233,7 @@ install_de() {
 
 install_deutils() {
     log "Installing essential desktop applications..."
-    install_from_list "${deutils_list[@]}"
+    install_from_list "${deutils_w_list[@]}"
 }
 
 install_flatpak() {
