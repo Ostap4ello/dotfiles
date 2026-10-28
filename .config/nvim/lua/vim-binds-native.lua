@@ -33,6 +33,23 @@ end, {})
 vim.api.nvim_create_user_command("Zathura", function()
     vim.cmd("! zathura . &")
 end, {})
+
+vim.api.nvim_create_user_command("Messages", function()
+    local messages = vim.fn.execute("messages")
+
+    vim.cmd("botright vsplit new")
+    local bufnr = vim.api.nvim_get_current_buf()
+    local winid = vim.api.nvim_get_current_win()
+
+    vim.bo[bufnr].buftype = "nofile"
+    vim.bo[bufnr].bufhidden = "wipe"
+    vim.bo[bufnr].swapfile = false
+    vim.bo[bufnr].modifiable = true
+    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, vim.split(messages, "\n", { plain = true }))
+    vim.bo[bufnr].modifiable = false
+    vim.bo[bufnr].readonly = true
+    vim.api.nvim_win_set_width(winid, math.floor(vim.o.columns * 0.4))
+end, {})
 -- vim.api.nvim_create_user_command("Tab", function()
 -- 	vim.cmd("vertical new")
 -- end, {})
