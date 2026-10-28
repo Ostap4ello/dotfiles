@@ -14,3 +14,7 @@
       unexpectedly.
       Note: cannot use neither $devnode not UIID as the trigger happens after
       the drive is plugged out.
+- run sshd server on port 3001 and custom IP (+tailscale) -
+  `./sshd_config.d/50-ssh-userserver.conf`
+  + add
+  `After=tailscaled.service` to sshd.service (override)
