@@ -70,7 +70,6 @@ vim.api.nvim_create_user_command("AISetup", function(opts)
         load_opencode()
     else
         load_copilot()
-        load_avante()
         load_copilot_cli()
     end
 end, {
