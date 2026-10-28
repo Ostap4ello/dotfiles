@@ -102,6 +102,9 @@ return {
                 -- Custom rule for Termux: use system-wide clangd binary
                 clangd = {
                     cmd = { "clangd", "--header-insertion=never" },
+                    -- WARN: fix for termux
+                    -- needs clang installed system-wide
+                    mason = false,
                 },
 
                 lua_ls = {
@@ -114,6 +117,9 @@ return {
                             telemetry = { enable = false },
                         },
                     },
+                    -- WARN: fix for termux
+                    -- needs lua-language-server installed system-wide
+                    mason = false,
                 },
 
                 jdtls = {
@@ -149,6 +155,9 @@ return {
                             chktex = { onOpenAndSave = true, onEdit = true },
                         },
                     },
+                    -- WARN: fix for termux
+                    -- needs texlab installed system-wide
+                    mason = false,
                 },
             }
 
@@ -156,8 +165,10 @@ return {
             local formatters_and_linters = {
                 "asmfmt",
                 "black",
-                "stylua",
-                "beautysh",
+                -- WARN: fix for termux
+                -- requires these installed system-wide
+                -- "stylua",
+                -- "beautysh",
                 "shfmt",
                 "jq",
                 "flake8",

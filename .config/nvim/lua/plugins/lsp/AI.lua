@@ -29,6 +29,14 @@ local opts_anante = {
 local opts_copilot_cmp = {}
 
 local function load_copilot()
+    require("copilot").setup({
+        copilot_node_command = {
+            "/data/data/com.termux/files/usr/bin/node",
+            "--require",
+            "/data/data/com.termux/files/home/.config/nvim/copilot-fix.js",
+        },
+        server = { type = "nodejs" },
+    })
     require("copilot_cmp").setup(opts_copilot_cmp)
     vim.print("NOTE: (fix pending) Open a new file or run `:e` to activate Copilot inline suggestions")
 end
@@ -43,9 +51,9 @@ local function load_avante()
 end
 
 local function load_copilot_cli()
-    if vim.fn.executable('copilot') == 1 then
-        local confirm = vim.fn.input('Create CopilotCLI terminal window? (y/n) ')
-        if confirm:lower() == 'y' then
+    if vim.fn.executable("copilot") == 1 then
+        local confirm = vim.fn.input("Create CopilotCLI terminal window? (y/n) ")
+        if confirm:lower() == "y" then
             vim.cmd("tabnew | tabmove $ | file CopilotCLI")
             vim.cmd("terminal copilot --resume")
         end
@@ -87,6 +95,19 @@ end, {
 })
 
 return {
+    -- WARN: fix for termux
+    -- copilot is not working properly on termux
+    -- requies special older commit to work with termux
+    -- TODO: lazy load
+    {
+        "github/copilot.vim",
+        commit = "dfe0a3a1c256167d181488a73ec6ccab8d8931a9",
+        lazy = false,
+        config = function()
+            vim.g.copilot_no_tab_map = true
+        end,
+    },
+
     {
         "zbirenbaum/copilot-cmp",
         dependencies = {
