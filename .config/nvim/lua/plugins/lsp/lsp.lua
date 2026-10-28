@@ -32,10 +32,9 @@ return {
             "saadparwaiz1/cmp_luasnip",
         },
         config = function()
-            -- 1. Initialize Mason
             require("mason").setup()
 
-            -- 2. Setup Autocompletion (nvim-cmp)
+            -- Autocompletion (nvim-cmp)
             local cmp = require("cmp")
             local luasnip = require("luasnip")
             local cmp_opts = {
@@ -94,14 +93,12 @@ return {
 
             cmp.setup(cmp_opts)
 
-            -- 3. Unified Server Configuration Table (Using modern vim.lsp.config options)
+            -- Lsp Servers
             local servers = {
                 pyright = {},
                 bashls = {},
 
-                -- Custom rule for Termux: use system-wide clangd binary
                 clangd = {
-                    cmd = { "clangd", "--header-insertion=never" },
                 },
 
                 lua_ls = {
